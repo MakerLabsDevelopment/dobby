@@ -1,0 +1,29 @@
+.tableButton {
+  cursor: pointer;
+  margin-left: 15px;
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+  color: black;
+}
+
+.inputContainer {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: row;
+}
+
+.nameInput {
+  border: solid 1px grey;
+  border-radius: 3px;
+  /* height: 35px; */
+  margin-left: 20px;
+  margin-right: 5px;
+  padding: 10px;
+  font-size: 1.2rem;
+}
+
+.optionsRow {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
