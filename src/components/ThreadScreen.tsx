@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { connect } from 'redux-bundler-react'
 import BaseScreen from './BaseScreen'
-import { Button } from 'semantic-ui-react'
 import Table from './table/Table'
 import './ThreadScreen.css'
 
@@ -9,7 +8,7 @@ import './ThreadScreen.css'
 interface IThreadsScreen {
   authClient: any
   collectionsList: any
-  doCollectionsCreate: (name: string) => any
+  doCollectionsCreate: () => any
   doUpdateUrl: (url: string) => any
   routeParams: any
 }
@@ -21,7 +20,6 @@ const ThreadScreen = ({
   doUpdateUrl,
   routeParams
 }: IThreadsScreen) => {
-  const [name, setName] = useState<string>('')
   const threadId = routeParams.threadId
   useEffect(() => {
     const setup = async () => {
@@ -40,16 +38,13 @@ const ThreadScreen = ({
             {collectionsList.map((collection: any, index: number) => (
               <a
                 key={index}
-                className='tableButton'
+                className='collectionTab'
                 href={`/threads/${threadId}/${collection.name}`}
               >
                 {collection.name}
               </a>
             ))}
-            <div className="inputContainer">
-              <input className='nameInput' placeholder='table name' type='text' value={name} onChange={e => setName(e.target.value)}/>
-              <Button className='ui primary button' onClick={() => doCollectionsCreate(name)}>Create</Button>
-            </div>
+            <div className='plusButton' onClick={() => doCollectionsCreate()}>+</div>
           </div>
           <Table />
         </BaseScreen>

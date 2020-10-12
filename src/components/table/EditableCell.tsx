@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 
 type EditabeCellProps = {
   value: any,
@@ -22,10 +22,6 @@ const EditableCell = ({
   const onBlur = () => {
     updateMyData(index, id, value)
   }
-
-  useEffect(() => {
-    setValue(initialValue)
-  }, [initialValue])
 
   return (<input value={value} onChange={onChange} onBlur={onBlur} />)
 }

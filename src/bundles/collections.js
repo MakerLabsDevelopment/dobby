@@ -62,7 +62,6 @@ export default {
       }
 
       if (type === 'COLLECTIONS_FETCH_ACTIVE_SUCCESS') {
-        console.log('sd', payload)
         return updateAll(
           set('active')(payload),
           set('loading')(false)
