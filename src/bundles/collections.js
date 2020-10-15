@@ -61,6 +61,35 @@ export default {
         )(state)
       }
 
+      if (type === 'COLLECTIONS_ADD_ROW_SUCCESS') {
+        return updateAll(
+          set('data')(payload.instancesList),
+          set('loading')(false)
+        )(state)
+      }
+
+      if (type === 'COLLECTIONS_ADD_ROW_FAILED') {
+        return updateAll(
+          set('data')(null),
+          set('loading')(false)
+        )(state)
+      }
+
+      if (type === 'COLLECTIONS_DELETE_ROW_SUCCESS') {
+        console.log(payload, 'PAY')
+        return updateAll(
+          set('data')(payload.instancesList),
+          set('loading')(false)
+        )(state)
+      }
+
+      if (type === 'COLLECTIONS_DELETE_ROW_FAILED') {
+        return updateAll(
+          set('data')(null),
+          set('loading')(false)
+        )(state)
+      }
+
       if (type === 'COLLECTIONS_FETCH_ACTIVE_SUCCESS') {
         return updateAll(
           set('active')(payload),
@@ -155,13 +184,13 @@ export default {
   },
   doCollectionsDeleteRow: (name, instanceId) => {
     return ({ dispatch, store }) => {
-      dispatch({ type: 'COLLECTIONS_ADD_ROW_START' })
+      dispatch({ type: 'COLLECTIONS_DELETE_ROW_START' })
       const { authClient: client } = store.select(['selectAuthClient'])
       const { threadsActive } = store.select(['selectThreadsActive'])
       return client.delete(threadsActive, name, [instanceId]).then((payload) => {
-        return dispatch({ type: 'COLLECTIONS_ADD_ROW_SUCCESS', payload })
+        return dispatch({ type: 'COLLECTIONS_DELETE_ROW_SUCCESS', payload })
       }).catch((err) => {
-        return dispatch({ type: 'COLLECTIONS_ADD_ROW_FAILED', err })
+        return dispatch({ type: 'COLLECTIONS_DELETE_ROW_FAILED', err })
       })
     }
   },

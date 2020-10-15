@@ -8,6 +8,7 @@ import {
   useSortBy,
   useFilters,
   useGroupBy,
+  useRowSelect,
   TableInstance
 } from 'react-table'
 import Pagination from './Pagination'
@@ -17,6 +18,8 @@ import './Table.css'
 type TableProps = {
   collectionsActive: any
   collectionsData: any
+  doCollectionsAddRow: (name: string, emptyRow: any) => any
+  doCollectionsDeleteRow: (name: string, instanceId: string) => any
   doCollectionsFetchData: (name: string) => any
   routeParams: any
 }
@@ -43,6 +46,8 @@ const IndeterminateCheckbox = forwardRef(
 const Table = ({
   collectionsActive,
   collectionsData,
+  doCollectionsAddRow,
+  doCollectionsDeleteRow,
   doCollectionsFetchData,
   routeParams
 }: TableProps) => {
@@ -51,6 +56,10 @@ const Table = ({
       {
         Header: name || 'table',
         columns: [
+          {
+            Header: 'id',
+            accessor: '_id'
+          },
           {
             Header: 'Name',
             accessor: 'name',
@@ -108,9 +117,9 @@ const Table = ({
     doCollectionsAddRow(name, emptyRowObject)
   }
 
-  // const removeRow = async (instanceId: string) => {
-  //   doCollectionsDeleteRow(name, instanceId)
-  // }
+  const removeRow = async (instanceId: string) => {
+    doCollectionsDeleteRow(name, instanceId)
+  }
 
   const addColumn = async () => {
     const newColData = { Header: 'Field', accessor: 'field' }
@@ -125,6 +134,29 @@ const Table = ({
     // @ts-ignore
     schema.properties.field = { type: 'string' }
     doCollectionsAddColumn(name, schema)
+  }
+
+  const ContextMenu = ({ yPos, xPos }) => (
+    <div
+      className='menu'
+      style={{ top: yPos, left: xPos }}
+      onClick={() => removeRow(rowId)}
+    >
+      delete row
+    </div>
+  )
+
+  const [showContext, setShowContext] = useState(false)
+  const [xPos, setXPost] = useState('')
+  const [yPos, setYPos] = useState('')
+  const [rowId, setRowId] = useState('')
+  const onRightClickRow = (e, id) => {
+    e.preventDefault()
+    setXPost(e.pageX + "px")
+    setYPos(e.pageY + "px")
+    setRowId(id)
+    setShowContext(true)
+
   }
 
   // Define a default UI for filtering
@@ -334,38 +366,40 @@ const Table = ({
     useGroupBy,
     useSortBy,
     usePagination,
-    // hooks => {
-    //   hooks.visibleColumns.push(columns => {
-    //     return [
-    //       {
-    //         id: 'selection',
-    //         // Make this column a groupByBoundary. This ensures that groupBy columns
-    //         // are placed after it
-    //         groupByBoundary: true,
-    //         // The header can use the table's getToggleAllRowsSelectedProps method
-    //         // to render a checkbox
-    //         // Header: ({ getToggleAllRowsSelectedProps }) => (
-    //         //   <div>
-    //         //     <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
-    //         //   </div>
-    //         // ),
-    //         // The cell can use the individual row's getToggleRowSelectedProps method
-    //         // to the render a checkbox
-    //         // Cell: ({ row }) => (
-    //         //   <div>
-    //         //     <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-    //         //   </div>
-    //         // ),
-    //       },
-    //       ...columns,
-    //     ]
-    //   })
-    // }
+    useRowSelect,
+    hooks => {
+      hooks.visibleColumns.push(columns => {
+        return [
+          {
+            id: 'selection',
+            // Make this column a groupByBoundary. This ensures that groupBy columns
+            // are placed after it
+            groupByBoundary: true,
+            // The header can use the table's getToggleAllRowsSelectedProps method
+            // to render a checkbox
+            Header: ({ getToggleAllRowsSelectedProps }) => (
+              <div>
+                <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
+              </div>
+            ),
+            // The cell can use the individual row's getToggleRowSelectedProps method
+            // to the render a checkbox
+            Cell: ({ row }) => (
+              <div>
+                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
+              </div>
+            ),
+          },
+          ...columns,
+        ]
+      })
+    }
   ) as TableInstance<object>
   useEffect(() => { setSkipPageReset(false) }, [data])
   // headerGroups.shift()
   return (
     <>
+      {showContext && <ContextMenu xPos={xPos} yPos={yPos} />}
       <div className='tableContainer'>
         <table {...getTableProps()} >
           <thead>
@@ -399,7 +433,10 @@ const Table = ({
             {page.map((row: any) => {
               prepareRow(row)
               return (
-                <tr {...row.getRowProps()}>
+                <tr
+                  {...row.getRowProps()}
+                  onContextMenu={(e) => onRightClickRow(e, row.values._id)}
+                >
                   {row.cells.map((cell: any) => {
                     return (
                       <td {...cell.getCellProps()}>
@@ -425,8 +462,8 @@ const Table = ({
             })}
           </tbody>
         </table>
+        <button onClick={addRow}>add row</button>
       </div>
-      <button onClick={addRow}>add row</button>
       <Pagination
         canPreviousPage={canPreviousPage}
         canNextPage={canNextPage}
@@ -445,6 +482,8 @@ const Table = ({
 }
 
 export default connect(
+  'doCollectionsAddRow',
+  'doCollectionsDeleteRow',
   'doCollectionsFetchData',
   'selectCollectionsActive',
   'selectCollectionsData',
