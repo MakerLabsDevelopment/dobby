@@ -2,6 +2,7 @@ import React, { Suspense, useEffect } from "react";
 import { connect } from "redux-bundler-react";
 import BaseScreen from "./BaseScreen";
 import { ErrorBoundary } from "./ErrorBoundary";
+import { Loading } from "./Loading";
 import { Threads } from "./Threads";
 import "semantic-ui-css/semantic.min.css";
 import "./Home.css";
@@ -28,7 +29,7 @@ const Home = ({
   return (
     <BaseScreen>
       <ErrorBoundary>
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<Loading />}>
           <Threads />
         </Suspense>
       </ErrorBoundary>
