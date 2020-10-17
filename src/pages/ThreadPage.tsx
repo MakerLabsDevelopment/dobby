@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react'
 import { connect } from 'redux-bundler-react'
-import BaseScreen from './BaseScreen'
-import Table from './table/Table'
-import './ThreadScreen.css'
+import { useRecoilState } from 'recoil'
+import { BasePage } from '../components/BasePage'
+import Table from '../components/table/Table'
+import { threadActiveIdState } from '../state'
+import styles from './ThreadPage.module.css'
 
-interface IThreadsScreen {
+interface IThreadPage {
   authClient: any
   collectionsList: any
   doCollectionsCreate: () => any
@@ -12,53 +14,55 @@ interface IThreadsScreen {
   routeParams: any
 }
 
-const ThreadScreen = ({
+const ThreadPageComponent = ({
   authClient,
   collectionsList,
   doCollectionsCreate,
   doUpdateUrl,
-  routeParams,
-}: IThreadsScreen) => {
-  const threadId = routeParams.threadId
+  routeParams: { threadId },
+}: IThreadPage) => {
+  const [threadActiveId, setThreadActiveId] = useRecoilState(
+    threadActiveIdState,
+  )
   useEffect(() => {
-    const setup = async () => {
-      // if (collectionsList) {
-      //   doUpdateUrl(`/threads/${threadId}/${collectionsList[0].name}`);
-      // }
-    }
-    setup()
-  }, [collectionsList, authClient])
+    setThreadActiveId(threadId)
+  }, [threadId])
 
   return (
     <>
       {collectionsList && (
-        <BaseScreen>
-          <div className="optionsRow">
+        <BasePage>
+          <div className={styles.optionsRow}>
             {collectionsList.map((collection: any, index: number) => (
               <a
                 key={index}
-                className="collectionTab"
+                className={styles.collectionTab}
                 href={`/threads/${threadId}/${collection.name}`}
               >
                 {collection.name}
               </a>
             ))}
-            <div className="plusButton" onClick={() => doCollectionsCreate()}>
+            <div
+              className={styles.plusButton}
+              onClick={() => doCollectionsCreate()}
+            >
               +
             </div>
           </div>
           <Table />
-        </BaseScreen>
+        </BasePage>
       )}
     </>
   )
 }
 
-export default connect(
+const ThreadPage = connect(
   'doUpdateUrl',
   'doThreadsCreate',
   'doCollectionsCreate',
   'selectCollectionsList',
   'selectRouteParams',
-  ThreadScreen,
+  ThreadPageComponent,
 )
+
+export { ThreadPage }

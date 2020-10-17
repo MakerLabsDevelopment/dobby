@@ -3,9 +3,9 @@ import ReactDOM from 'react-dom'
 import { RecoilRoot } from 'recoil'
 import { Provider } from 'redux-bundler-react'
 import getStore from './bundles'
-import './assets/css/index.css'
 import AppContainer from './components/AppContainer'
 import * as serviceWorker from './serviceWorker'
+import './assets/css/index.css'
 
 const appContainer = document.getElementById('root')
 if (appContainer == null) {

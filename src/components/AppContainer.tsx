@@ -6,10 +6,10 @@ type AppContainerProps = {
 }
 
 const AppContainer = ({ route }: AppContainerProps) => {
-  const Screen = route
+  const Page = route
   return (
     <div>
-      <Screen />
+      <Page />
     </div>
   )
 }
