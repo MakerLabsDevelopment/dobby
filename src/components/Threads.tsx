@@ -1,15 +1,18 @@
 import React from "react";
 import { selector, useRecoilValue } from "recoil";
 import { PrivateKey, Client } from "@textile/hub";
+import { Thread } from "./Thread";
+import styles from "./Threads.module.css";
+
+const keyInfo = { key: "bs3g66aciasarrm46kosxap74te" };
 
 const threadsQuery = selector({
   key: "Threads",
   get: async ({ get }) => {
-    // const wait = (delay: number) =>
-    //   new Promise((resolve) => setTimeout(resolve, delay));
-    // await wait(5000);
+    const client = get(clientQuery);
     try {
       const threads = await client.listThreads();
+      return [...threads.listList];
     } catch (err) {
       throw err;
     }
@@ -18,8 +21,7 @@ const threadsQuery = selector({
 
 const clientQuery = selector({
   key: "Client",
-  get: async ({ get }) => {
-    const keyInfo = { key: "bs3g66aciasarrm46kosxap74te" };
+  get: async () => {
     let storedIdent = localStorage.getItem("identity") || "";
     if (!storedIdent) {
       try {
@@ -41,13 +43,13 @@ const clientQuery = selector({
 });
 
 const Threads = () => {
-  const client = useRecoilValue(clientQuery);
   const threads = useRecoilValue(threadsQuery);
   return (
-    <>
-      {client &&
-        threads.map((thread) => <div key={thread.name}>{thread.name}</div>)}
-    </>
+    <div className={styles.threads}>
+      {threads?.map((thread: any) => (
+        <Thread thread={thread} />
+      ))}
+    </div>
   );
 };
 
