@@ -1,83 +1,89 @@
-import { set, updateAll } from 'shades'
-import { createSelector } from 'redux-bundler'
-import { cache } from '.././utils'
-import { PrivateKey, Client } from '@textile/hub'
+import { set, updateAll } from "shades";
+import { createSelector } from "redux-bundler";
+import { cache } from ".././utils";
+import { PrivateKey, Client } from "@textile/hub";
 
 export default {
-  name: 'auth',
+  name: "auth",
   getReducer: () => {
-    const keyInfo = { key: 'bs3g66aciasarrm46kosxap74te' }
+    const keyInfo = { key: "bs3g66aciasarrm46kosxap74te" };
     const initialData = {
       client: null,
       error: null,
       loading: false,
       keyInfo,
-    }
+    };
     return (state = initialData, { type, payload, err }) => {
-      if (type.startsWith('AUTH_') && type.endsWith('_START')) {
-        return set('loading')(true)(state)
+      if (type.startsWith("AUTH_") && type.endsWith("_START")) {
+        return set("loading")(true)(state);
       }
 
-      if (type === 'AUTH_SIGN_OUT') {
-        localStorage.removeItem('identity')
-        return set('token')(null)(state)
+      if (type === "AUTH_SIGN_OUT") {
+        localStorage.removeItem("identity");
+        return set("token")(null)(state);
       }
 
-      if (type === 'AUTH_SIGN_IN_SUCCESS') {
+      if (type === "AUTH_SIGN_IN_SUCCESS") {
         return updateAll(
-          set('error')(null),
-          set('loading')(false),
-          set('identity')(payload.identity),
-          set('client')(payload.client)
-        )(state)
+          set("error")(null),
+          set("loading")(false),
+          set("identity")(payload.identity),
+          set("client")(payload.client)
+        )(state);
       }
 
-      if (type === 'AUTH_SIGN_IN_ERROR') {
+      if (type === "AUTH_SIGN_IN_ERROR") {
         return updateAll(
-          set('error')(err.message),
-          set('loading')(false)
-        )(state)
+          set("error")(err.message),
+          set("loading")(false)
+        )(state);
       }
 
-      return state
-    }
+      return state;
+    };
   },
   doAuthSignIn: () => {
     return async ({ store, dispatch }) => {
-      dispatch({ type: 'AUTH_SIGN_IN_START' })
-      let storedIdent = localStorage.getItem('identity')
-      const { authKeyInfo: keyInfo } = store.select(['selectAuthKeyInfo'])
+      dispatch({ type: "AUTH_SIGN_IN_START" });
+      let storedIdent = localStorage.getItem("identity");
+      const { authKeyInfo: keyInfo } = store.select(["selectAuthKeyInfo"]);
       if (storedIdent === null) {
         try {
-          const identity = PrivateKey.fromRandom()
-          const identityString = identity.toString()
-          localStorage.setItem('identity', identityString)
+          const identity = PrivateKey.fromRandom();
+          const identityString = identity.toString();
+          localStorage.setItem("identity", identityString);
 
-          const client = await Client.withKeyInfo(keyInfo)
-          await client.getToken(identity)
-          return dispatch({ type: 'AUTH_SIGN_IN_SUCCESS', payload: { identity, client } })
+          const client = await Client.withKeyInfo(keyInfo);
+          await client.getToken(identity);
+          return dispatch({
+            type: "AUTH_SIGN_IN_SUCCESS",
+            payload: { identity, client },
+          });
         } catch (err) {
-          return dispatch({ type: 'AUTH_SIGN_IN_ERROR', err })
+          return dispatch({ type: "AUTH_SIGN_IN_ERROR", err });
         }
       }
-      const identity = PrivateKey.fromString(storedIdent)
-      const client = await Client.withKeyInfo(keyInfo)
-      await client.getToken(identity)
-      return dispatch({ type: 'AUTH_SIGN_IN_SUCCESS', payload: { identity, client } })
-    }
+      const identity = PrivateKey.fromString(storedIdent);
+      const client = await Client.withKeyInfo(keyInfo, undefined, true);
+      await client.getToken(identity);
+      return dispatch({
+        type: "AUTH_SIGN_IN_SUCCESS",
+        payload: { identity, client },
+      });
+    };
   },
   doAuthSignOut: () => {
     return async ({ dispatch, store }) => {
-      await cache.clear('dbdb')
-      return store.doUpdateUrl('/')
-    }
+      await cache.clear("dbdb");
+      return store.doUpdateUrl("/");
+    };
   },
   reactAuthShouldSignIn: createSelector(
-    'selectAuthClient',
-    'selectAuthLoading',
+    "selectAuthClient",
+    "selectAuthLoading",
     (client, loading) => {
       if (!client && !loading) {
-        return { actionCreator: 'doAuthSignIn' }
+        return { actionCreator: "doAuthSignIn" };
       }
     }
   ),
@@ -85,8 +91,7 @@ export default {
   selectAuthSignedIn: (state) => Boolean(state.auth.token),
   selectAuthToken: (state) => state.auth.token,
   selectAuthClient: (state) => state.auth.client,
+  selectAuthIdentity: (state) => state.auth.identity,
   selectAuthKeyInfo: (state) => state.auth.keyInfo,
-  persistActions: [
-    'AUTH_SIGN_OUT',
-  ]
-}
+  persistActions: ["AUTH_SIGN_OUT"],
+};

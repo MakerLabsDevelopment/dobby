@@ -1,21 +1,24 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-import { Provider } from 'redux-bundler-react'
-import getStore from './bundles'
-import './assets/css/index.css'
-import AppContainer from './components/AppContainer'
-import * as serviceWorker from './serviceWorker'
+import React from "react";
+import ReactDOM from "react-dom";
+import { RecoilRoot } from "recoil";
+import { Provider } from "redux-bundler-react";
+import getStore from "./bundles";
+import "./assets/css/index.css";
+import AppContainer from "./components/AppContainer";
+import * as serviceWorker from "./serviceWorker";
 
-const appContainer = document.getElementById('root')
+const appContainer = document.getElementById("root");
 if (appContainer == null) {
-  throw new Error('Unable to find DOM element to render app')
+  throw new Error("Unable to find DOM element to render app");
 }
 
 ReactDOM.render(
   <Provider store={getStore()}>
-    <AppContainer />
+    <RecoilRoot>
+      <AppContainer />
+    </RecoilRoot>
   </Provider>,
   appContainer
-)
+);
 
-serviceWorker.unregister()
+serviceWorker.unregister();
