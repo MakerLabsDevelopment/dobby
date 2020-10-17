@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from "react";
-import { connect } from "redux-bundler-react";
-import BaseScreen from "./BaseScreen";
-import { Button } from "semantic-ui-react";
-import Table from "./table/Table";
-import "./ThreadScreen.css";
+import React, { useState, useEffect } from 'react'
+import { connect } from 'redux-bundler-react'
+import BaseScreen from './BaseScreen'
+import { Button } from 'semantic-ui-react'
+import Table from './table/Table'
+import './ThreadScreen.css'
 
 interface IThreadsScreen {
-  authClient: any;
-  collectionsList: any;
-  doCollectionsCreate: (name: string) => any;
-  doUpdateUrl: (url: string) => any;
-  routeParams: any;
+  authClient: any
+  collectionsList: any
+  doCollectionsCreate: (name: string) => any
+  doUpdateUrl: (url: string) => any
+  routeParams: any
 }
 
 const ThreadScreen = ({
@@ -20,16 +20,16 @@ const ThreadScreen = ({
   doUpdateUrl,
   routeParams,
 }: IThreadsScreen) => {
-  const [name, setName] = useState<string>("");
-  const threadId = routeParams.threadId;
+  const [name, setName] = useState<string>('')
+  const threadId = routeParams.threadId
   useEffect(() => {
     const setup = async () => {
       // if (collectionsList) {
       //   doUpdateUrl(`/threads/${threadId}/${collectionsList[0].name}`);
       // }
-    };
-    setup();
-  }, [collectionsList, authClient]);
+    }
+    setup()
+  }, [collectionsList, authClient])
 
   return (
     <>
@@ -65,14 +65,14 @@ const ThreadScreen = ({
         </BaseScreen>
       )}
     </>
-  );
-};
+  )
+}
 
 export default connect(
-  "doUpdateUrl",
-  "doThreadsCreate",
-  "doCollectionsCreate",
-  "selectCollectionsList",
-  "selectRouteParams",
-  ThreadScreen
-);
+  'doUpdateUrl',
+  'doThreadsCreate',
+  'doCollectionsCreate',
+  'selectCollectionsList',
+  'selectRouteParams',
+  ThreadScreen,
+)

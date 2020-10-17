@@ -1,17 +1,17 @@
-import React, { Suspense, useEffect } from "react";
-import { connect } from "redux-bundler-react";
-import BaseScreen from "./BaseScreen";
-import { ErrorBoundary } from "./ErrorBoundary";
-import { Loading } from "./Loading";
-import { Threads } from "./Threads";
-import "semantic-ui-css/semantic.min.css";
-import "./Home.css";
+import React, { Suspense, useEffect } from 'react'
+import { connect } from 'redux-bundler-react'
+import BaseScreen from './BaseScreen'
+import { ErrorBoundary } from './ErrorBoundary'
+import { Loading } from './Loading'
+import { Threads } from './Threads'
+import 'semantic-ui-css/semantic.min.css'
+import './Home.css'
 
 interface IHome {
-  authSignedIn: boolean;
-  doAuthSignIn: () => any;
-  doThreadsCreate: () => any;
-  threadsData: any;
+  authSignedIn: boolean
+  doAuthSignIn: () => any
+  doThreadsCreate: () => any
+  threadsData: any
 }
 
 const Home = ({
@@ -22,9 +22,9 @@ const Home = ({
 }: IHome): React.ReactElement<IHome> => {
   useEffect(() => {
     if (authSignedIn) {
-      doAuthSignIn();
+      doAuthSignIn()
     }
-  }, [authSignedIn]);
+  }, [authSignedIn])
 
   return (
     <BaseScreen>
@@ -38,18 +38,18 @@ const Home = ({
         {threadsData &&
           threadsData.map((thread: any, index: number) => (
             <a className="thread" key={index} href={`/threads/${thread.id}`}>
-              {thread.name || "no name"}
+              {thread.name || 'no name'}
             </a>
           ))}
       </div>
     </BaseScreen>
-  );
-};
+  )
+}
 
 export default connect(
-  "doAuthSignIn",
-  "doThreadsCreate",
-  "selectAuthSignedIn",
-  "selectThreadsData",
-  Home
-);
+  'doAuthSignIn',
+  'doThreadsCreate',
+  'selectAuthSignedIn',
+  'selectThreadsData',
+  Home,
+)

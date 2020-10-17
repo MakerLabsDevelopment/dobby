@@ -1,5 +1,5 @@
-import React from "react";
+import React from 'react'
 
-const Loading = () => <div className="ui loader active inline"></div>;
+const Loading = () => <div className="ui loader active inline"></div>
 
-export { Loading };
+export { Loading }

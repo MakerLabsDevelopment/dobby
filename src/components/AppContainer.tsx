@@ -1,17 +1,17 @@
-import React from "react";
-import { connect } from "redux-bundler-react";
+import React from 'react'
+import { connect } from 'redux-bundler-react'
 
 type AppContainerProps = {
-  route: any;
-};
+  route: any
+}
 
 const AppContainer = ({ route }: AppContainerProps) => {
-  const Screen = route;
+  const Screen = route
   return (
     <div>
       <Screen />
     </div>
-  );
-};
+  )
+}
 
-export default connect("selectRoute", AppContainer);
+export default connect('selectRoute', AppContainer)
