@@ -9,6 +9,8 @@ import {
   useFilters,
   useGroupBy,
   useRowSelect,
+  useBlockLayout,
+  useResizeColumns,
   TableInstance
 } from 'react-table'
 import Pagination from './Pagination'
@@ -18,9 +20,11 @@ import './Table.css'
 type TableProps = {
   collectionsActive: any
   collectionsData: any
+  doCollectionsAddColumn: (name: string, schema_type: string) => any
   doCollectionsAddRow: (name: string, emptyRow: any) => any
   doCollectionsDeleteRow: (name: string, instanceId: string) => any
   doCollectionsFetchData: (name: string) => any
+  doCollectionsUpdateSave: (name: string, data: any) => any
   routeParams: any
 }
 
@@ -46,9 +50,11 @@ const IndeterminateCheckbox = forwardRef(
 const Table = ({
   collectionsActive,
   collectionsData,
+  doCollectionsAddColumn,
   doCollectionsAddRow,
   doCollectionsDeleteRow,
   doCollectionsFetchData,
+  doCollectionsUpdateSave,
   routeParams
 }: TableProps) => {
   const name = routeParams.collectionName
@@ -58,7 +64,7 @@ const Table = ({
         columns: [
           {
             Header: 'id',
-            accessor: '_id'
+            accessor: '_id',
           },
           {
             Header: 'Name',
@@ -90,13 +96,14 @@ const Table = ({
     }
   }, [name, collectionsActive, collectionsData])
 
-  // useEffect(() => {
-  //   if (data.length > 1) {
-  //     doCollectionsUpdate(name, data)
-  //   }
-  // }, [data])
+  useEffect(() => {
+    if (data.length > 1) {
+      doCollectionsUpdateSave(name, data)
+    }
+  }, [data])
 
   const updateMyData = async (rowIndex: number, columnId: string, value: any) => {
+    console.log(data, 'DATAs')
     setSkipPageReset(true)
     setData(old =>
       old.map((row, index) => {
@@ -131,20 +138,58 @@ const Table = ({
         }
       })
     )
-    // @ts-ignore
-    schema.properties.field = { type: 'string' }
-    doCollectionsAddColumn(name, schema)
+    doCollectionsAddColumn(name, 'string')
   }
 
-  const ContextMenu = ({ yPos, xPos }) => (
-    <div
-      className='menu'
-      style={{ top: yPos, left: xPos }}
-      onClick={() => removeRow(rowId)}
-    >
-      delete row
-    </div>
-  )
+  const removeColumn = async (columnId: string) => {
+    setColumns(old =>
+      old.map((row) => {
+        return {
+          Header: name,
+          columns: row.columns.filter((col) => col.accessor != columnId)
+        }
+      })
+    )
+  }
+
+  const renameColumn = async (columnId: string, name: string) => {
+    const test = mod('columns', columnId, 'Header')(name)(columns)
+    console.log(test)
+    // setColumns(old =>
+    //   old.map((row) => {
+    //     return {
+    //       Header: name,
+    //       columns: row.columns.filter((col) => col.accessor != columnId)
+    //     }
+    //   })
+    // )
+  }
+
+  const ContextMenu = ({ yPos, xPos }) => {
+    if (rowId) {
+      return (
+        <div
+          className='menu'
+          style={{ top: yPos, left: xPos }}
+        >
+          <div className='menuItem' onClick={() => removeRow(rowId)}>delete row</div>
+        </div>
+      )
+    }
+    if (columnId) {
+      return (
+        <div
+          className='menu'
+          style={{ top: yPos, left: xPos }}
+        >
+          <div className='menuItem' onClick={() => renameColumn(columnId)}>rename</div>
+          <div className='menuItem' onClick={() => removeColumn(columnId)}>delete column</div>
+        </div>
+      )
+    } else {
+      return <div>why</div>
+    }
+  }
 
   const [showContext, setShowContext] = useState(false)
   const [xPos, setXPost] = useState('')
@@ -155,6 +200,15 @@ const Table = ({
     setXPost(e.pageX + "px")
     setYPos(e.pageY + "px")
     setRowId(id)
+    setShowContext(true)
+  }
+
+  const [columnId, setColumnId] = useState('')
+  const onRightClickColumn = (e, id) => {
+    e.preventDefault()
+    setXPost(e.pageX + "px")
+    setYPos(e.pageY + "px")
+    setColumnId(id)
     setShowContext(true)
 
   }
@@ -325,12 +379,15 @@ const Table = ({
   )
 
   const defaultColumn = useMemo(
-   () => ({
-     Filter: DefaultColumnFilter,
-     Cell: EditableCell,
-   }),
-   []
- )
+    () => ({
+      Filter: DefaultColumnFilter,
+      Cell: EditableCell,
+      minWidth: 30,
+      width: 150,
+      maxWidth: 400,
+    }),
+    []
+  )
 
   const {
     getTableProps,
@@ -367,6 +424,8 @@ const Table = ({
     useSortBy,
     usePagination,
     useRowSelect,
+    useBlockLayout,
+    useResizeColumns,
     hooks => {
       hooks.visibleColumns.push(columns => {
         return [
@@ -406,7 +465,11 @@ const Table = ({
             {headerGroups.map((headerGroup: any) => (
               <tr {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map((column: any) => (
-                  <th {...column.getHeaderProps()}>
+                  <th
+                    width={column.width}
+                    onContextMenu={(e) => onRightClickColumn(e, column.id)}
+                    {...column.getHeaderProps()}
+                  >
                     <div>
                       {column.canGroupBy ? (
                         <span {...column.getGroupByToggleProps()}>
@@ -415,6 +478,12 @@ const Table = ({
                       ) : null}
                       <span {...column.getSortByToggleProps()}>
                         {column.render('Header')}
+                        <div
+                          {...column.getResizerProps()}
+                          className={`resizer ${
+                            column.isResizing ? 'isResizing' : ''
+                          }`}
+                        />
                         {column.isSorted
                           ? column.isSortedDesc
                             ? ' 🔽'
@@ -482,9 +551,11 @@ const Table = ({
 }
 
 export default connect(
+  'doCollectionsAddColumn',
   'doCollectionsAddRow',
   'doCollectionsDeleteRow',
   'doCollectionsFetchData',
+  'doCollectionsUpdateSave',
   'selectCollectionsActive',
   'selectCollectionsData',
   'selectRouteParams',

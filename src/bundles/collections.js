@@ -15,6 +15,26 @@ const schema = {
   },
 }
 
+const columnsSchema = {
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  title: { type: 'string' },
+  type: 'object',
+  properties: {
+    Header: { type: 'string' },
+    columns: {
+      type: 'array',
+      items: {
+        Header: { type: 'string' },
+        accessor: { type: 'string' },
+        width: { type: 'string'},
+        aggregate: { type: 'string' },
+      },
+      minItems: 1,
+      uniqueItems: true
+    }
+  }
+}
+
 export default {
   name: 'collections',
   getReducer: () => {
@@ -76,7 +96,6 @@ export default {
       }
 
       if (type === 'COLLECTIONS_DELETE_ROW_SUCCESS') {
-        console.log(payload, 'PAY')
         return updateAll(
           set('data')(payload.instancesList),
           set('loading')(false)
@@ -158,10 +177,10 @@ export default {
       })
     }
   },
-  doCollectionsUpdate: (name, data) => {
+  doCollectionsUpdateSave: (name, data) => {
     return ({ dispatch, store }) => {
       dispatch({ type: 'COLLECTIONS_UPDATE_START' })
-      const { client } = store.select(['selectAuthClient'])
+      const { authClient: client } = store.select(['selectAuthClient'])
       const { threadsActive } = store.select(['selectThreadsActive'])
       return client.save(threadsActive, name, data).then((payload) => {
         return dispatch({ type: 'COLLECTIONS_UPDATE_SUCCESS', payload })
@@ -194,11 +213,12 @@ export default {
       })
     }
   },
-  doCollectionsAddColumn: (name, schema) => {
+  doCollectionsAddColumn: (name, schema_type) => {
     return ({ dispatch, store }) => {
       dispatch({ type: 'COLLECTIONS_ADD_COLUMN_START' })
       const { authClient: client } = store.select(['selectAuthClient'])
       const { threadId } = store.select(['selectThreadsActive'])
+      schema.properties.field = { type: schema_type }
       return client.updateCollection(threadId, name, schema).then((payload) => {
         return dispatch({ type: 'COLLECTIONS_ADD_COLUMN_SUCCESS', payload })
       }).catch((err) => {
