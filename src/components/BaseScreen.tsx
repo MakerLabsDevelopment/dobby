@@ -7,20 +7,20 @@ interface IBaseScreen {
 }
 
 const BaseScreen = ({ children, hasNav }: IBaseScreen) => (
-  <div className='screen'>
+  <div className="screen">
     {hasNav && (
-      <div className='header'>
-        <a className='avatar' href='/'>Dobby</a>
+      <div className="header">
+        <a className="avatar" href="/">
+          Dobby
+        </a>
       </div>
     )}
-    <div className='content'>
-      {children}
-    </div>
+    <div className="content">{children}</div>
   </div>
 )
 
 BaseScreen.defaultProps = {
-  hasNav: true
+  hasNav: true,
 }
 
 export default BaseScreen

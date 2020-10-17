@@ -4,7 +4,6 @@ import BaseScreen from './BaseScreen'
 import Table from './table/Table'
 import './ThreadScreen.css'
 
-
 interface IThreadsScreen {
   authClient: any
   collectionsList: any
@@ -18,14 +17,14 @@ const ThreadScreen = ({
   collectionsList,
   doCollectionsCreate,
   doUpdateUrl,
-  routeParams
+  routeParams,
 }: IThreadsScreen) => {
   const threadId = routeParams.threadId
   useEffect(() => {
     const setup = async () => {
-      if (collectionsList) {
-        doUpdateUrl(`/threads/${threadId}/${collectionsList[0].name}`)
-      }
+      // if (collectionsList) {
+      //   doUpdateUrl(`/threads/${threadId}/${collectionsList[0].name}`);
+      // }
     }
     setup()
   }, [collectionsList, authClient])
@@ -34,17 +33,19 @@ const ThreadScreen = ({
     <>
       {collectionsList && (
         <BaseScreen>
-          <div className='optionsRow'>
+          <div className="optionsRow">
             {collectionsList.map((collection: any, index: number) => (
               <a
                 key={index}
-                className='collectionTab'
+                className="collectionTab"
                 href={`/threads/${threadId}/${collection.name}`}
               >
                 {collection.name}
               </a>
             ))}
-            <div className='plusButton' onClick={() => doCollectionsCreate()}>+</div>
+            <div className="plusButton" onClick={() => doCollectionsCreate()}>
+              +
+            </div>
           </div>
           <Table />
         </BaseScreen>
@@ -59,5 +60,5 @@ export default connect(
   'doCollectionsCreate',
   'selectCollectionsList',
   'selectRouteParams',
-  ThreadScreen
+  ThreadScreen,
 )
