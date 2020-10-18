@@ -11,11 +11,11 @@ import {
   useRowSelect,
   useBlockLayout,
   useResizeColumns,
-  TableInstance
+  TableInstance,
 } from 'react-table'
 import Pagination from './Pagination'
 import EditableCell from './EditableCell'
-import './Table.css'
+import styles from './Table.module.css'
 
 type TableProps = {
   collectionsActive: any
@@ -30,22 +30,20 @@ type TableProps = {
 
 type Data = object
 
-const IndeterminateCheckbox = forwardRef(
-  ({ indeterminate, ...rest }, ref) => {
-    const defaultRef = useRef()
-    const resolvedRef = ref || defaultRef
+const IndeterminateCheckbox = forwardRef(({ indeterminate, ...rest }, ref) => {
+  const defaultRef = useRef()
+  const resolvedRef = ref || defaultRef
 
-    useEffect(() => {
-      resolvedRef.current.indeterminate = indeterminate
-    }, [resolvedRef, indeterminate])
+  useEffect(() => {
+    resolvedRef.current.indeterminate = indeterminate
+  }, [resolvedRef, indeterminate])
 
-    return (
-      <>
-        <input type="checkbox" ref={resolvedRef} {...rest} />
-      </>
-    )
-  }
-)
+  return (
+    <>
+      <input type="checkbox" ref={resolvedRef} {...rest} />
+    </>
+  )
+})
 
 const Table = ({
   collectionsActive,
@@ -55,34 +53,33 @@ const Table = ({
   doCollectionsDeleteRow,
   doCollectionsFetchData,
   doCollectionsUpdateSave,
-  routeParams
+  routeParams,
 }: TableProps) => {
   const name = routeParams.collectionName
   const [columns, setColumns] = useState([
-      {
-        Header: name || 'table',
-        columns: [
-          {
-            Header: 'id',
-            accessor: '_id',
-          },
-          {
-            Header: 'Name',
-            accessor: 'name',
-            aggregate: 'count',
-            Aggregated: ({ value }) => `${value} Names`,
-          },
-          {
-            Header: 'Missions',
-            accessor: 'missions',
-            filter: 'fuzzyText',
-            aggregate: 'uniqueCount',
-            Aggregated: ({ value }) => `${value} Unique Names`,
-          },
-        ],
-      },
-    ],
-  )
+    {
+      Header: name || 'table',
+      columns: [
+        {
+          Header: 'id',
+          accessor: '_id',
+        },
+        {
+          Header: 'Name',
+          accessor: 'name',
+          aggregate: 'count',
+          Aggregated: ({ value }) => `${value} Names`,
+        },
+        {
+          Header: 'Missions',
+          accessor: 'missions',
+          filter: 'fuzzyText',
+          aggregate: 'uniqueCount',
+          Aggregated: ({ value }) => `${value} Unique Names`,
+        },
+      ],
+    },
+  ])
   const [data, setData] = useState([])
   const [skipPageReset, setSkipPageReset] = useState(false)
   const skipResetRef = useRef(false)
@@ -92,7 +89,7 @@ const Table = ({
     if (collectionsData) {
       setData(collectionsData)
     } else {
-      doCollectionsFetchData(name)
+      // doCollectionsFetchData(name)
     }
   }, [name, collectionsActive, collectionsData])
 
@@ -102,10 +99,14 @@ const Table = ({
     }
   }, [data])
 
-  const updateMyData = async (rowIndex: number, columnId: string, value: any) => {
+  const updateMyData = async (
+    rowIndex: number,
+    columnId: string,
+    value: any,
+  ) => {
     console.log(data, 'DATAs')
     setSkipPageReset(true)
-    setData(old =>
+    setData((old) =>
       old.map((row, index) => {
         if (index === rowIndex) {
           return {
@@ -114,12 +115,16 @@ const Table = ({
           }
         }
         return row
-      })
+      }),
     )
   }
 
   const addRow = () => {
-    const emptyRowObject = { _id: Math.random().toString(36), name: "", count: 0 }
+    const emptyRowObject = {
+      _id: Math.random().toString(36),
+      name: '',
+      count: 0,
+    }
     setData([...data, emptyRowObject])
     doCollectionsAddRow(name, emptyRowObject)
   }
@@ -130,25 +135,25 @@ const Table = ({
 
   const addColumn = async () => {
     const newColData = { Header: 'Field', accessor: 'field' }
-    setColumns(old =>
+    setColumns((old) =>
       old.map((row) => {
         return {
           Header: name,
-          columns: [...row.columns, newColData]
+          columns: [...row.columns, newColData],
         }
-      })
+      }),
     )
     doCollectionsAddColumn(name, 'string')
   }
 
   const removeColumn = async (columnId: string) => {
-    setColumns(old =>
+    setColumns((old) =>
       old.map((row) => {
         return {
           Header: name,
-          columns: row.columns.filter((col) => col.accessor != columnId)
+          columns: row.columns.filter((col) => col.accessor != columnId),
         }
-      })
+      }),
     )
   }
 
@@ -168,22 +173,28 @@ const Table = ({
   const ContextMenu = ({ yPos, xPos }) => {
     if (rowId) {
       return (
-        <div
-          className='menu'
-          style={{ top: yPos, left: xPos }}
-        >
-          <div className='menuItem' onClick={() => removeRow(rowId)}>delete row</div>
+        <div className={styles.menu} style={{ top: yPos, left: xPos }}>
+          <div className={styles.menuItem} onClick={() => removeRow(rowId)}>
+            delete row
+          </div>
         </div>
       )
     }
     if (columnId) {
       return (
-        <div
-          className='menu'
-          style={{ top: yPos, left: xPos }}
-        >
-          <div className='menuItem' onClick={() => renameColumn(columnId)}>rename</div>
-          <div className='menuItem' onClick={() => removeColumn(columnId)}>delete column</div>
+        <div className={styles.menu} style={{ top: yPos, left: xPos }}>
+          <div
+            className={styles.menuItem}
+            onClick={() => renameColumn(columnId)}
+          >
+            rename
+          </div>
+          <div
+            className={styles.menuItem}
+            onClick={() => removeColumn(columnId)}
+          >
+            delete column
+          </div>
         </div>
       )
     } else {
@@ -197,8 +208,8 @@ const Table = ({
   const [rowId, setRowId] = useState('')
   const onRightClickRow = (e, id) => {
     e.preventDefault()
-    setXPost(e.pageX + "px")
-    setYPos(e.pageY + "px")
+    setXPost(e.pageX + 'px')
+    setYPos(e.pageY + 'px')
     setRowId(id)
     setShowContext(true)
   }
@@ -206,11 +217,10 @@ const Table = ({
   const [columnId, setColumnId] = useState('')
   const onRightClickColumn = (e, id) => {
     e.preventDefault()
-    setXPost(e.pageX + "px")
-    setYPos(e.pageY + "px")
+    setXPost(e.pageX + 'px')
+    setYPos(e.pageY + 'px')
     setColumnId(id)
     setShowContext(true)
-
   }
 
   // Define a default UI for filtering
@@ -222,7 +232,7 @@ const Table = ({
     return (
       <input
         value={filterValue || ''}
-        onChange={e => {
+        onChange={(e) => {
           setFilter(e.target.value || undefined) // Set undefined to remove the filter entirely
         }}
         placeholder={`Search ${count} records...`}
@@ -239,7 +249,7 @@ const Table = ({
     // using the preFilteredRows
     const options = useMemo(() => {
       const options = new Set()
-      preFilteredRows.forEach(row => {
+      preFilteredRows.forEach((row) => {
         options.add(row.values[id])
       })
       return [...options.values()]
@@ -249,7 +259,7 @@ const Table = ({
     return (
       <select
         value={filterValue}
-        onChange={e => {
+        onChange={(e) => {
           setFilter(e.target.value || undefined)
         }}
       >
@@ -275,7 +285,7 @@ const Table = ({
     const [min, max] = React.useMemo(() => {
       let min = preFilteredRows.length ? preFilteredRows[0].values[id] : 0
       let max = preFilteredRows.length ? preFilteredRows[0].values[id] : 0
-      preFilteredRows.forEach(row => {
+      preFilteredRows.forEach((row) => {
         min = Math.min(row.values[id], min)
         max = Math.max(row.values[id], max)
       })
@@ -289,7 +299,7 @@ const Table = ({
           min={min}
           max={max}
           value={filterValue || min}
-          onChange={e => {
+          onChange={(e) => {
             setFilter(parseInt(e.target.value, 10))
           }}
         />
@@ -307,7 +317,7 @@ const Table = ({
     const [min, max] = React.useMemo(() => {
       let min = preFilteredRows.length ? preFilteredRows[0].values[id] : 0
       let max = preFilteredRows.length ? preFilteredRows[0].values[id] : 0
-      preFilteredRows.forEach(row => {
+      preFilteredRows.forEach((row) => {
         min = Math.min(row.values[id], min)
         max = Math.max(row.values[id], max)
       })
@@ -323,9 +333,12 @@ const Table = ({
         <input
           value={filterValue[0] || ''}
           type="number"
-          onChange={e => {
+          onChange={(e) => {
             const val = e.target.value
-            setFilter((old = []) => [val ? parseInt(val, 10) : undefined, old[1]])
+            setFilter((old = []) => [
+              val ? parseInt(val, 10) : undefined,
+              old[1],
+            ])
           }}
           placeholder={`Min (${min})`}
           style={{
@@ -337,9 +350,12 @@ const Table = ({
         <input
           value={filterValue[1] || ''}
           type="number"
-          onChange={e => {
+          onChange={(e) => {
             const val = e.target.value
-            setFilter((old = []) => [old[0], val ? parseInt(val, 10) : undefined])
+            setFilter((old = []) => [
+              old[0],
+              val ? parseInt(val, 10) : undefined,
+            ])
           }}
           placeholder={`Max (${max})`}
           style={{
@@ -352,11 +368,11 @@ const Table = ({
   }
 
   const fuzzyTextFilterFn = (rows, id, filterValue) => {
-    return matchSorter(rows, filterValue, { keys: [row => row.values[id]] })
+    return matchSorter(rows, filterValue, { keys: [(row) => row.values[id]] })
   }
 
   // Let the table remove the filter if the string is empty
-  fuzzyTextFilterFn.autoRemove = val => !val
+  fuzzyTextFilterFn.autoRemove = (val) => !val
 
   const filterTypes = useMemo(
     () => ({
@@ -365,7 +381,7 @@ const Table = ({
       // Or, override the default text filter to use
       // "startWith"
       text: (rows, id, filterValue) => {
-        return rows.filter(row => {
+        return rows.filter((row) => {
           const rowValue = row.values[id]
           return rowValue !== undefined
             ? String(rowValue)
@@ -375,7 +391,7 @@ const Table = ({
         })
       },
     }),
-    []
+    [],
   )
 
   const defaultColumn = useMemo(
@@ -386,7 +402,7 @@ const Table = ({
       width: 150,
       maxWidth: 400,
     }),
-    []
+    [],
   )
 
   const {
@@ -403,10 +419,7 @@ const Table = ({
     nextPage,
     previousPage,
     setPageSize,
-    state: {
-      pageIndex,
-      pageSize,
-    },
+    state: { pageIndex, pageSize },
   } = useTable<Data>(
     {
       columns,
@@ -426,8 +439,8 @@ const Table = ({
     useRowSelect,
     useBlockLayout,
     useResizeColumns,
-    hooks => {
-      hooks.visibleColumns.push(columns => {
+    (hooks) => {
+      hooks.visibleColumns.push((columns) => {
         return [
           {
             id: 'selection',
@@ -452,15 +465,17 @@ const Table = ({
           ...columns,
         ]
       })
-    }
+    },
   ) as TableInstance<object>
-  useEffect(() => { setSkipPageReset(false) }, [data])
+  useEffect(() => {
+    setSkipPageReset(false)
+  }, [data])
   // headerGroups.shift()
   return (
     <>
       {showContext && <ContextMenu xPos={xPos} yPos={yPos} />}
-      <div className='tableContainer'>
-        <table {...getTableProps()} >
+      <div className={styles.tableContainer}>
+        <table {...getTableProps()}>
           <thead>
             {headerGroups.map((headerGroup: any) => (
               <tr {...headerGroup.getHeaderGroupProps()}>
@@ -491,10 +506,14 @@ const Table = ({
                           : ''}
                       </span>
                     </div>
-                    <div>{column.canFilter ? column.render('Filter') : null}</div>
+                    <div>
+                      {column.canFilter ? column.render('Filter') : null}
+                    </div>
                   </th>
                 ))}
-                <th><button onClick={addColumn}>add column</button></th>
+                <th>
+                  <button onClick={addColumn}>add column</button>
+                </th>
               </tr>
             ))}
           </thead>
@@ -559,5 +578,5 @@ export default connect(
   'selectCollectionsActive',
   'selectCollectionsData',
   'selectRouteParams',
-  Table
+  Table,
 )
