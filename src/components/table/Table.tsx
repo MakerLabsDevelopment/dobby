@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useEffect, useState, useMemo, useRef, forwardRef } from 'react'
+import React, { useEffect, useState, useMemo, useRef } from 'react'
 import matchSorter from 'match-sorter'
 import { connect } from 'redux-bundler-react'
 import {
@@ -13,11 +13,17 @@ import {
   useResizeColumns,
   TableInstance
 } from 'react-table'
+import { DefaultColumnFilter } from './Filters'
+import { IndeterminateCheckbox } from './Checkbox'
+import TableHead from './TableHead'
+import TableBody from './TableBody'
 import Pagination from './Pagination'
 import EditableCell from './EditableCell'
-import './Table.css'
+import styles from './Table.module.css'
 
-type TableProps = {
+type Data = object
+
+interface TableProps {
   collectionsActive: any
   collectionsData: any
   doCollectionsAddColumn: (name: string, schema_type: string) => any
@@ -27,25 +33,6 @@ type TableProps = {
   doCollectionsUpdateSave: (name: string, data: any) => any
   routeParams: any
 }
-
-type Data = object
-
-const IndeterminateCheckbox = forwardRef(
-  ({ indeterminate, ...rest }, ref) => {
-    const defaultRef = useRef()
-    const resolvedRef = ref || defaultRef
-
-    useEffect(() => {
-      resolvedRef.current.indeterminate = indeterminate
-    }, [resolvedRef, indeterminate])
-
-    return (
-      <>
-        <input type="checkbox" ref={resolvedRef} {...rest} />
-      </>
-    )
-  }
-)
 
 const Table = ({
   collectionsActive,
@@ -65,16 +52,19 @@ const Table = ({
           {
             Header: 'id',
             accessor: '_id',
+            type: 'single_line_text',
           },
           {
             Header: 'Name',
             accessor: 'name',
+            type: 'single_line_text',
             aggregate: 'count',
             Aggregated: ({ value }) => `${value} Names`,
           },
           {
             Header: 'Missions',
             accessor: 'missions',
+            type: 'number',
             filter: 'fuzzyText',
             aggregate: 'uniqueCount',
             Aggregated: ({ value }) => `${value} Unique Names`,
@@ -105,8 +95,8 @@ const Table = ({
   const updateMyData = async (rowIndex: number, columnId: string, value: any) => {
     console.log(data, 'DATAs')
     setSkipPageReset(true)
-    setData(old =>
-      old.map((row, index) => {
+    setData((old: any) =>
+      old.map((row: any, index: number) => {
         if (index === rowIndex) {
           return {
             ...old[rowIndex],
@@ -118,252 +108,15 @@ const Table = ({
     )
   }
 
-  const addRow = () => {
-    const emptyRowObject = { _id: Math.random().toString(36), name: "", count: 0 }
-    setData([...data, emptyRowObject])
-    doCollectionsAddRow(name, emptyRowObject)
-  }
-
-  const removeRow = async (instanceId: string) => {
-    doCollectionsDeleteRow(name, instanceId)
-  }
-
-  const addColumn = async () => {
-    const newColData = { Header: 'Field', accessor: 'field' }
-    setColumns(old =>
-      old.map((row) => {
-        return {
-          Header: name,
-          columns: [...row.columns, newColData]
-        }
-      })
-    )
-    doCollectionsAddColumn(name, 'string')
-  }
-
-  const removeColumn = async (columnId: string) => {
-    setColumns(old =>
-      old.map((row) => {
-        return {
-          Header: name,
-          columns: row.columns.filter((col) => col.accessor != columnId)
-        }
-      })
-    )
-  }
-
-  const renameColumn = async (columnId: string, name: string) => {
-    const test = mod('columns', columnId, 'Header')(name)(columns)
-    console.log(test)
-    // setColumns(old =>
-    //   old.map((row) => {
-    //     return {
-    //       Header: name,
-    //       columns: row.columns.filter((col) => col.accessor != columnId)
-    //     }
-    //   })
-    // )
-  }
-
-  const ContextMenu = ({ yPos, xPos }) => {
-    if (rowId) {
-      return (
-        <div
-          className='menu'
-          style={{ top: yPos, left: xPos }}
-        >
-          <div className='menuItem' onClick={() => removeRow(rowId)}>delete row</div>
-        </div>
-      )
-    }
-    if (columnId) {
-      return (
-        <div
-          className='menu'
-          style={{ top: yPos, left: xPos }}
-        >
-          <div className='menuItem' onClick={() => renameColumn(columnId)}>rename</div>
-          <div className='menuItem' onClick={() => removeColumn(columnId)}>delete column</div>
-        </div>
-      )
-    } else {
-      return <div>why</div>
-    }
-  }
-
-  const [showContext, setShowContext] = useState(false)
-  const [xPos, setXPost] = useState('')
-  const [yPos, setYPos] = useState('')
-  const [rowId, setRowId] = useState('')
-  const onRightClickRow = (e, id) => {
-    e.preventDefault()
-    setXPost(e.pageX + "px")
-    setYPos(e.pageY + "px")
-    setRowId(id)
-    setShowContext(true)
-  }
-
-  const [columnId, setColumnId] = useState('')
-  const onRightClickColumn = (e, id) => {
-    e.preventDefault()
-    setXPost(e.pageX + "px")
-    setYPos(e.pageY + "px")
-    setColumnId(id)
-    setShowContext(true)
-
-  }
-
-  // Define a default UI for filtering
-  const DefaultColumnFilter = ({
-    column: { filterValue, preFilteredRows, setFilter },
-  }) => {
-    const count = preFilteredRows.length
-
-    return (
-      <input
-        value={filterValue || ''}
-        onChange={e => {
-          setFilter(e.target.value || undefined) // Set undefined to remove the filter entirely
-        }}
-        placeholder={`Search ${count} records...`}
-      />
-    )
-  }
-
-  // This is a custom filter UI for selecting
-  // a unique option from a list
-  const SelectColumnFilter = ({
-    column: { filterValue, setFilter, preFilteredRows, id },
-  }) => {
-    // Calculate the options for filtering
-    // using the preFilteredRows
-    const options = useMemo(() => {
-      const options = new Set()
-      preFilteredRows.forEach(row => {
-        options.add(row.values[id])
-      })
-      return [...options.values()]
-    }, [id, preFilteredRows])
-
-    // Render a multi-select box
-    return (
-      <select
-        value={filterValue}
-        onChange={e => {
-          setFilter(e.target.value || undefined)
-        }}
-      >
-        <option value="">All</option>
-        {options.map((option, i) => (
-          <option key={i} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
-    )
-  }
-
-  // This is a custom filter UI that uses a
-  // slider to set the filter value between a column's
-  // min and max values
-  const SliderColumnFilter = ({
-    column: { filterValue, setFilter, preFilteredRows, id },
-  }) => {
-    // Calculate the min and max
-    // using the preFilteredRows
-
-    const [min, max] = React.useMemo(() => {
-      let min = preFilteredRows.length ? preFilteredRows[0].values[id] : 0
-      let max = preFilteredRows.length ? preFilteredRows[0].values[id] : 0
-      preFilteredRows.forEach(row => {
-        min = Math.min(row.values[id], min)
-        max = Math.max(row.values[id], max)
-      })
-      return [min, max]
-    }, [id, preFilteredRows])
-
-    return (
-      <>
-        <input
-          type="range"
-          min={min}
-          max={max}
-          value={filterValue || min}
-          onChange={e => {
-            setFilter(parseInt(e.target.value, 10))
-          }}
-        />
-        <button onClick={() => setFilter(undefined)}>Off</button>
-      </>
-    )
-  }
-
-  // This is a custom UI for our 'between' or number range
-  // filter. It uses two number boxes and filters rows to
-  // ones that have values between the two
-  const NumberRangeColumnFilter = ({
-    column: { filterValue = [], preFilteredRows, setFilter, id },
-  }) => {
-    const [min, max] = React.useMemo(() => {
-      let min = preFilteredRows.length ? preFilteredRows[0].values[id] : 0
-      let max = preFilteredRows.length ? preFilteredRows[0].values[id] : 0
-      preFilteredRows.forEach(row => {
-        min = Math.min(row.values[id], min)
-        max = Math.max(row.values[id], max)
-      })
-      return [min, max]
-    }, [id, preFilteredRows])
-
-    return (
-      <div
-        style={{
-          display: 'flex',
-        }}
-      >
-        <input
-          value={filterValue[0] || ''}
-          type="number"
-          onChange={e => {
-            const val = e.target.value
-            setFilter((old = []) => [val ? parseInt(val, 10) : undefined, old[1]])
-          }}
-          placeholder={`Min (${min})`}
-          style={{
-            width: '70px',
-            marginRight: '0.5rem',
-          }}
-        />
-        to
-        <input
-          value={filterValue[1] || ''}
-          type="number"
-          onChange={e => {
-            const val = e.target.value
-            setFilter((old = []) => [old[0], val ? parseInt(val, 10) : undefined])
-          }}
-          placeholder={`Max (${max})`}
-          style={{
-            width: '70px',
-            marginLeft: '0.5rem',
-          }}
-        />
-      </div>
-    )
-  }
-
-  const fuzzyTextFilterFn = (rows, id, filterValue) => {
+  const fuzzyTextFilterFn = (rows: any, id: string, filterValue: string) => {
     return matchSorter(rows, filterValue, { keys: [row => row.values[id]] })
   }
 
-  // Let the table remove the filter if the string is empty
   fuzzyTextFilterFn.autoRemove = val => !val
 
   const filterTypes = useMemo(
     () => ({
-      // Add a new fuzzyTextFilterFn filter type.
       fuzzyText: fuzzyTextFilterFn,
-      // Or, override the default text filter to use
-      // "startWith"
       text: (rows, id, filterValue) => {
         return rows.filter(row => {
           const rowValue = row.values[id]
@@ -413,6 +166,7 @@ const Table = ({
       data,
       defaultColumn,
       filterTypes,
+      initialState: { pageSize: 30 },
       autoResetPage: !skipPageReset,
       updateMyData,
       autoResetPage: !skipReset,
@@ -427,22 +181,20 @@ const Table = ({
     useBlockLayout,
     useResizeColumns,
     hooks => {
-      hooks.visibleColumns.push(columns => {
+      hooks.allColumns.push(columns => {
         return [
           {
             id: 'selection',
-            // Make this column a groupByBoundary. This ensures that groupBy columns
-            // are placed after it
             groupByBoundary: true,
-            // The header can use the table's getToggleAllRowsSelectedProps method
-            // to render a checkbox
+            disableResizing: true,
+            minWidth: 35,
+            width: 35,
+            maxWidth: 35,
             Header: ({ getToggleAllRowsSelectedProps }) => (
               <div>
                 <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
               </div>
             ),
-            // The cell can use the individual row's getToggleRowSelectedProps method
-            // to the render a checkbox
             Cell: ({ row }) => (
               <div>
                 <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
@@ -452,86 +204,31 @@ const Table = ({
           ...columns,
         ]
       })
+      hooks.useInstanceBeforeDimensions.push(({ headerGroups }) => {
+        // fix the parent group of the selection button to not be resizable
+        const selectionGroupHeader = headerGroups[0].headers[0]
+        selectionGroupHeader.canResize = false
+      })
     }
   ) as TableInstance<object>
   useEffect(() => { setSkipPageReset(false) }, [data])
-  // headerGroups.shift()
   return (
     <>
-      {showContext && <ContextMenu xPos={xPos} yPos={yPos} />}
-      <div className='tableContainer'>
+      <div className={styles.tableContainer}>
         <table {...getTableProps()} >
-          <thead>
-            {headerGroups.map((headerGroup: any) => (
-              <tr {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map((column: any) => (
-                  <th
-                    width={column.width}
-                    onContextMenu={(e) => onRightClickColumn(e, column.id)}
-                    {...column.getHeaderProps()}
-                  >
-                    <div>
-                      {column.canGroupBy ? (
-                        <span {...column.getGroupByToggleProps()}>
-                          {column.isGrouped ? '🛑 ' : '👊 '}
-                        </span>
-                      ) : null}
-                      <span {...column.getSortByToggleProps()}>
-                        {column.render('Header')}
-                        <div
-                          {...column.getResizerProps()}
-                          className={`resizer ${
-                            column.isResizing ? 'isResizing' : ''
-                          }`}
-                        />
-                        {column.isSorted
-                          ? column.isSortedDesc
-                            ? ' 🔽'
-                            : ' 🔼'
-                          : ''}
-                      </span>
-                    </div>
-                    <div>{column.canFilter ? column.render('Filter') : null}</div>
-                  </th>
-                ))}
-                <th><button onClick={addColumn}>add column</button></th>
-              </tr>
-            ))}
-          </thead>
-          <tbody {...getTableBodyProps()}>
-            {page.map((row: any) => {
-              prepareRow(row)
-              return (
-                <tr
-                  {...row.getRowProps()}
-                  onContextMenu={(e) => onRightClickRow(e, row.values._id)}
-                >
-                  {row.cells.map((cell: any) => {
-                    return (
-                      <td {...cell.getCellProps()}>
-                        {cell.isGrouped ? (
-                          // If it's a grouped cell, add an expander and row count
-                          <>
-                            {cell.render('Cell', { editable: false })} (
-                            {row.subRows.length})
-                          </>
-                        ) : cell.isAggregated ? (
-                          // If the cell is aggregated, use the Aggregated
-                          // renderer for cell
-                          cell.render('Aggregated')
-                        ) : cell.isPlaceholder ? null : ( // For cells with repeated values, render null
-                          // Otherwise, just render the regular cell
-                          cell.render('Cell', { editable: true })
-                        )}
-                      </td>
-                    )
-                  })}
-                </tr>
-              )
-            })}
-          </tbody>
+          <TableHead
+            headerGroups={headerGroups}
+            name={name}
+            setColumns={setColumns}
+          />
+          <TableBody
+            data={data}
+            getTableBodyProps={getTableBodyProps}
+            page={page}
+            prepareRow={prepareRow}
+            setData={setData}
+          />
         </table>
-        <button onClick={addRow}>add row</button>
       </div>
       <Pagination
         canPreviousPage={canPreviousPage}

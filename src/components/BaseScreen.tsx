@@ -1,19 +1,23 @@
 import React from 'react'
-import './BaseScreen.css'
+import styles from './BaseScreen.module.css'
 
-interface IBaseScreen {
+interface BaseScreenProps {
   children: any
   hasNav: boolean
 }
 
-const BaseScreen = ({ children, hasNav }: IBaseScreen) => (
-  <div className='screen'>
+const BaseScreen = ({ children, hasNav }: BaseScreenProps) => (
+  <div className={styles.screen}>
     {hasNav && (
-      <div className='header'>
-        <a className='avatar' href='/'>Dobby</a>
+      <div className={styles.header}>
+        <a className={styles.logo} href='/'>Dobby</a>
+        <div className={styles.user}>
+          <div className={styles.avatar} />
+          <div className={styles.username}>username</div>
+        </div>
       </div>
     )}
-    <div className='content'>
+    <div className={styles.content}>
       {children}
     </div>
   </div>

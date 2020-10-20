@@ -1,0 +1,46 @@
+
+.tableContainer {
+  overflow-x: auto;
+  width: 100%;
+  height: 80vh;
+  border: 1px solid hsl(202,10%,88%);
+}
+
+
+table {
+  border-spacing: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.pagination {
+  margin: 1rem;
+}
+
+th, td {
+  margin: 0;
+  /* padding: 0.5rem; */
+  border-bottom: 1px solid hsl(202,10%,88%);
+  border-right: 1px solid hsl(202,10%,88%);
+  /* position: relative; */
+}
+
+th:last-child {
+  border-right: 0;
+}
+
+td:last-child {
+  border-right: 1;
+}
+
+input {
+  font-size: 1rem;
+  padding: 0.5rem;
+  width: 100%;
+  margin: 0;
+  border: 0;
+}
+
+input:focus {
+  outline: none;
+}

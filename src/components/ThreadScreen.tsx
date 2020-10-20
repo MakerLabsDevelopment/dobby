@@ -2,10 +2,10 @@ import React, { useEffect } from 'react'
 import { connect } from 'redux-bundler-react'
 import BaseScreen from './BaseScreen'
 import Table from './table/Table'
-import './ThreadScreen.css'
+import styles from './ThreadScreen.module.css'
 
 
-interface IThreadsScreen {
+interface ThreadsScreenProps {
   authClient: any
   collectionsList: any
   doCollectionsCreate: () => any
@@ -19,7 +19,7 @@ const ThreadScreen = ({
   doCollectionsCreate,
   doUpdateUrl,
   routeParams
-}: IThreadsScreen) => {
+}: ThreadsScreenProps) => {
   const threadId = routeParams.threadId
   useEffect(() => {
     const setup = async () => {
@@ -34,17 +34,17 @@ const ThreadScreen = ({
     <>
       {collectionsList && (
         <BaseScreen>
-          <div className='optionsRow'>
+          <div className={styles.optionsRow}>
             {collectionsList.map((collection: any, index: number) => (
               <a
                 key={index}
-                className='collectionTab'
+                className={styles.collectionTab}
                 href={`/threads/${threadId}/${collection.name}`}
               >
                 {collection.name}
               </a>
             ))}
-            <div className='plusButton' onClick={() => doCollectionsCreate()}>+</div>
+            <div className={styles.plusButton} onClick={() => doCollectionsCreate()}>+</div>
           </div>
           <Table />
         </BaseScreen>

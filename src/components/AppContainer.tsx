@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'redux-bundler-react'
 
-type AppContainerProps = {
+interface AppContainerProps {
   route: any
 }
 
