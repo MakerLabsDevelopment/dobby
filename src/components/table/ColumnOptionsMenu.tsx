@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
+import clsx from 'clsx'
 import styles from './ColumnOptionsMenu.module.css'
 
 const menuTypes = [
@@ -34,20 +35,18 @@ const menuTypes = [
 
 type ColumnOptionsMenuProps = {
   addColumn: (columnId: string, direction: string) => any
+  column: any,
   columnId: any,
   onClose: () => any,
   setColumns: (old: object) => any,
-  xPos: any,
-  yPos: any
 }
 
 const ColumnOptionsMenu = ({
   addColumn,
+  column,
   columnId,
   onClose,
   setColumns,
-  xPos,
-  yPos
 }: ColumnOptionsMenuProps) => {
   const [dropDown, setDropDown] = useState('options')
   const [colName, setColName] = useState('')
@@ -97,7 +96,7 @@ const ColumnOptionsMenu = ({
     )
   }
 
-  const removeColumn = async (columnId: string) => {
+  const removeColumn = (columnId: string) => {
     setColumns(old =>
       old.map((row) => {
         return {
@@ -107,10 +106,20 @@ const ColumnOptionsMenu = ({
     )
   }
 
+  const sortColumnDesc = () => {
+    !column.isSorted ? column.toggleSortBy(true) : column.clearSortBy()
+    onClose()
+  }
+
+  const sortColumnAsc = () => {
+    !column.isSorted ? column.toggleSortBy(false) : column.clearSortBy()
+    onClose()
+  }
+
+
   return (
     <div
       className={styles.menu}
-      style={{ top: yPos, left: xPos }}
       ref={wrapperRef}
     >
       {dropDown === 'options' && (
@@ -119,8 +128,8 @@ const ColumnOptionsMenu = ({
           <div className={styles.menuItem} onClick={() => setDropDown('rename')}>rename</div>
           <div className={styles.menuItem} onClick={() => addColumn('left', columnId)}>insert left</div>
           <div className={styles.menuItem} onClick={() => addColumn('right', columnId)}>insert right</div>
-          <div className={styles.menuItem}>sort A-Z</div>
-          <div className={styles.menuItem}>sort Z-A</div>
+          <div className={styles.menuItem} onClick={() => sortColumnDesc()}>sort A-Z</div>
+          <div className={styles.menuItem} onClick={() => sortColumnAsc()}>sort Z-A</div>
           <div className={styles.menuItem}>add filter</div>
           <div className={styles.menuItem}>group by field</div>
           <div className={styles.menuItem} onClick={() => removeColumn(columnId)}>delete column</div>

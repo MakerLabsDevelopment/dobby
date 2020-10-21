@@ -38,17 +38,17 @@ const TableBody = ({
   }
 
   return (
-    <tbody {...getTableBodyProps()} className={styles.tableBody}>
+    <div {...getTableBodyProps()} className={styles.tableBody}>
       {page.map((row: any) => {
         prepareRow(row)
         return (
-          <tr
+          <div
             {...row.getRowProps()}
             onContextMenu={(e) => onRightClickRow(e, row.values._id)}
           >
             {row.cells.map((cell: any) => {
               return (
-                <td {...cell.getCellProps()}>
+                <div {...cell.getCellProps()} className={styles.tableData}>
                   {cell.isGrouped ? (
                     <>
                       {cell.render('Cell', { editable: false })} (
@@ -67,14 +67,14 @@ const TableBody = ({
                       yPos={yPos}
                     />
                   )}
-                </td>
+                </div>
               )
             })}
-          </tr>
+          </div>
         )
       })}
-      <tr><td><button onClick={addRow}>add row</button></td></tr>
-    </tbody>
+      <button onClick={addRow}>add row</button>
+    </div>
   )
 }
 

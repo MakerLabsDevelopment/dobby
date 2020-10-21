@@ -1,0 +1,15 @@
+
+.container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  border: 1px solid hsl(202,10%,88%);
+  position: absolute;
+  z-index: 1;
+}
+
+.filterRow {
+  display: grid;
+  grid-template-columns: 0.5fr 1fr 2fr 1fr 1fr;
+  grid-gap: 10px;
+}

@@ -1,0 +1,10 @@
+
+.container {
+  background-color: white;
+  width: 100%;
+  padding: 10px 15px;
+  border-bottom: 1px solid hsl(202,10%,88%);
+  display: grid;
+  grid-template-columns: 4fr 1fr 10fr;
+  grid-gap: 10px;
+}

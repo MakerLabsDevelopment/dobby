@@ -7,14 +7,16 @@ import {
   usePagination,
   useSortBy,
   useFilters,
+  useGlobalFilter,
   useGroupBy,
   useRowSelect,
   useBlockLayout,
   useResizeColumns,
   TableInstance
 } from 'react-table'
-import { DefaultColumnFilter } from './Filters'
+import GlobalFilter from './GlobalFilter'
 import { IndeterminateCheckbox } from './Checkbox'
+import TableActionsBar from './TableActionsBar'
 import TableHead from './TableHead'
 import TableBody from './TableBody'
 import Pagination from './Pagination'
@@ -47,29 +49,26 @@ const Table = ({
   const name = routeParams.collectionName
   const [columns, setColumns] = useState([
       {
-        Header: name || 'table',
-        columns: [
-          {
-            Header: 'id',
-            accessor: '_id',
-            type: 'single_line_text',
-          },
-          {
-            Header: 'Name',
-            accessor: 'name',
-            type: 'single_line_text',
-            aggregate: 'count',
-            Aggregated: ({ value }) => `${value} Names`,
-          },
-          {
-            Header: 'Missions',
-            accessor: 'missions',
-            type: 'number',
-            filter: 'fuzzyText',
-            aggregate: 'uniqueCount',
-            Aggregated: ({ value }) => `${value} Unique Names`,
-          },
-        ],
+        Header: 'id',
+        accessor: '_id',
+        type: 'single_line_text',
+        filter: 'fuzzyText',
+      },
+      {
+        Header: 'Name',
+        accessor: 'name',
+        type: 'single_line_text',
+        filter: 'fuzzyText',
+        aggregate: 'count',
+        Aggregated: ({ value }) => `${value} Names`,
+      },
+      {
+        Header: 'Missions',
+        accessor: 'missions',
+        type: 'number',
+        filter: 'fuzzyText',
+        aggregate: 'uniqueCount',
+        Aggregated: ({ value }) => `${value} Unique Names`,
       },
     ],
   )
@@ -133,7 +132,7 @@ const Table = ({
 
   const defaultColumn = useMemo(
     () => ({
-      Filter: DefaultColumnFilter,
+      Filter: GlobalFilter,
       Cell: EditableCell,
       minWidth: 30,
       width: 150,
@@ -157,9 +156,12 @@ const Table = ({
     previousPage,
     setPageSize,
     state: {
+      globalFilter,
       pageIndex,
       pageSize,
     },
+    preGlobalFilteredRows,
+    setGlobalFilter,
   } = useTable<Data>(
     {
       columns,
@@ -174,6 +176,7 @@ const Table = ({
       disableMultiSort: true,
     },
     useFilters,
+    useGlobalFilter,
     useGroupBy,
     useSortBy,
     usePagination,
@@ -214,21 +217,25 @@ const Table = ({
   useEffect(() => { setSkipPageReset(false) }, [data])
   return (
     <>
-      <div className={styles.tableContainer}>
-        <table {...getTableProps()} >
-          <TableHead
-            headerGroups={headerGroups}
-            name={name}
-            setColumns={setColumns}
-          />
-          <TableBody
-            data={data}
-            getTableBodyProps={getTableBodyProps}
-            page={page}
-            prepareRow={prepareRow}
-            setData={setData}
-          />
-        </table>
+      <div className={styles.tableContainer} {...getTableProps()}>
+        <TableActionsBar
+          headerGroups={headerGroups}
+          preGlobalFilteredRows={preGlobalFilteredRows}
+          globalFilter={globalFilter}
+          setGlobalFilter={setGlobalFilter}
+        />
+        <TableHead
+          headerGroups={headerGroups}
+          name={name}
+          setColumns={setColumns}
+        />
+        <TableBody
+          data={data}
+          getTableBodyProps={getTableBodyProps}
+          page={page}
+          prepareRow={prepareRow}
+          setData={setData}
+        />
       </div>
       <Pagination
         canPreviousPage={canPreviousPage}

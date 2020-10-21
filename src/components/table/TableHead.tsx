@@ -9,15 +9,11 @@ interface TableHeadProps {
 }
 
 const TableHead = ({ headerGroups, setColumns }: TableHeadProps) => {
-  const [xPos, setXPost] = useState('')
-  const [yPos, setYPos] = useState('')
   const [columnId, setColumnId] = useState('')
   const [showColumnOptionsMenu, setShowColumnOptionsMenu] = useState(false)
 
   const onRightClickColumn = (e: any, columnId: string) => {
     e.preventDefault()
-    setXPost(e.pageX + "px")
-    setYPos(e.pageY + "px")
     setColumnId(columnId)
     setShowColumnOptionsMenu(true)
   }
@@ -39,52 +35,58 @@ const TableHead = ({ headerGroups, setColumns }: TableHeadProps) => {
   }
 
   return (
-    <thead className={styles.tableHeader}>
-      {headerGroups.map((headerGroup: any) => (
-        <tr {...headerGroup.getHeaderGroupProps()}>
-          {headerGroup.headers.map((column: any) => (
-            <th
-              onContextMenu={(e) => onRightClickColumn(e, column.id)}
-              {...column.getHeaderProps()}
-            >
-              <div>
-                {column.canGroupBy ? (
-                  <span {...column.getGroupByToggleProps()}>
-                    {column.isGrouped ? '🛑 ' : '👊 '}
+    <div className={styles.tableHeaderContainer}>
+      <div>
+        {headerGroups.map((headerGroup: any) => (
+          <div {...headerGroup.getHeaderGroupProps()} className={styles.headerRow}>
+            {headerGroup.headers.map((column: any) => (
+              <div
+                className={styles.tableHeader}
+                onContextMenu={(e) => onRightClickColumn(e, column.id)}
+                {...column.getHeaderProps()}
+              >
+                <div>
+                  {column.canGroupBy ? (
+                    <span {...column.getGroupByToggleProps()}>
+                      {column.isGrouped ? '🛑 ' : '👊 '}
+                    </span>
+                  ) : null}
+                  <span>
+                    {column.render('Header')}
+                    {column.canResize && (
+                      <div
+                        {...column.getResizerProps()}
+                        className={clsx(styles.resizer, column.isResizing && styles.isResizing)}
+                      />
+                    )}
+                    {column.isSorted
+                      ? column.isSortedDesc
+                        ? ' 🔽'
+                        : ' 🔼'
+                      : ''}
                   </span>
-                ) : null}
-                <span {...column.getSortByToggleProps()}>
-                  {column.render('Header')}
-                  {column.canResize && (
-                    <div
-                      {...column.getResizerProps()}
-                      className={clsx(styles.resizer, column.isResizing && styles.isResizing)}
-                    />
-                  )}
-                  {column.isSorted
-                    ? column.isSortedDesc
-                      ? ' 🔽'
-                      : ' 🔼'
-                    : ''}
-                </span>
+                </div>
+                {showColumnOptionsMenu && column.id === columnId && (
+                  <ColumnOptionsMenu
+                    addColumn={addColumn}
+                    columnId={columnId}
+                    column={column}
+                    onClose={() => setShowColumnOptionsMenu(false)}
+                    setColumns={setColumns}
+                  />
+                )}
               </div>
-              <div>{column.canFilter ? column.render('Filter') : null}</div>
-              {showColumnOptionsMenu && column.id === columnId && (
-                <ColumnOptionsMenu
-                  addColumn={addColumn}
-                  columnId={columnId}
-                  onClose={() => setShowColumnOptionsMenu(false)}
-                  setColumns={setColumns}
-                  xPos={xPos}
-                  yPos={yPos}
-                />
-              )}
-            </th>
-          ))}
-          { /* <th><button onClick={() => addColumn('left')}>add column</button></th> */ }
-        </tr>
-      ))}
-    </thead>
+            ))}
+          </div>
+        ))}
+      </div>
+      <button
+        className={styles.addColumnButton}
+        onClick={() => addColumn('left')}
+      >
+        add column
+      </button>
+    </div>
   )
 }
 

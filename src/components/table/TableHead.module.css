@@ -1,7 +1,6 @@
 
 .resizer {
   display: inline-block;
-  background: blue;
   width: 10px;
   height: 100%;
   position: absolute;
@@ -16,7 +15,34 @@
   background: red;
 }
 
-.tableHeader {
-  position: fixed;
+.tableHeaderContainer {
+  position: sticky;
+  top: 0;
   background-color: white;
+  display: flex;
+  flex-direction: row;
+  background-color: #dbdbdb;
+}
+
+.headerRow {
+  background-color: #f5f5f5;
+}
+
+.tableHeader {
+  margin: 0;
+  border-bottom: 1px solid hsl(202,10%,88%);
+  border-right: 1px solid hsl(202,10%,88%);
+  background-color: transparent;
+  font-weight: 600;
+  text-align: center;
+  padding: 5px;
+
+}
+
+.tableHeader:last-child {
+  border-right: 0;
+}
+
+.addColumnButton {
+  height: 30px;
 }

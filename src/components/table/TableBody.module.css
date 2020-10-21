@@ -1,4 +1,13 @@
 
-/* .tableBody {
-  margin-top: 20px;
-} */
+
+
+.tableData {
+  margin: 0;
+  border-bottom: 1px solid hsl(202,10%,88%);
+  border-right: 1px solid hsl(202,10%,88%);
+  background-color: white;
+}
+
+td:last-child {
+  border-right: 1;
+}
