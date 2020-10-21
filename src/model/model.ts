@@ -30,7 +30,6 @@ export interface Table {
 export interface Column {
     id: ColumnID,
     description: string,
-    rowFieldName: string,
 }
 
 // The union of all possible cell values, will be expanded to include things

@@ -9,7 +9,7 @@ interface DummyBaseData {
             columns: Column[],
             name: string,
             rows: {[index: string]: CellValue}[],
-        }
+        };
     }
 }
 
@@ -152,8 +152,7 @@ export class DummyRepo implements DobbyRepo {
         if (base == null) {
             throw new Error("No such base " + baseId)
         }
-
-        const table = base.tables.find(t => t.id == tableId)
+const table = base.tables.find(t => t.id == tableId)
         if (table == null) {
             throw new Error("No such table " + tableId)
         }
@@ -168,11 +167,11 @@ export class DummyRepo implements DobbyRepo {
     }
 }
 
-export function newDummyRepo(dummyData: {[index: string]: DummyBaseData}): DobbyRepo {
+export function newDummyRepo(dummyData: DummyBaseData[]): DobbyRepo {
     const bases = new Map()
-    for (const baseName in dummyData) {
+    for (const baseData of dummyData) {
         const baseId = newBaseId(uuid.v4().toString())
-        bases.set(baseId, new DummyBase(baseId, dummyData[baseName]))
+        bases.set(baseId, new DummyBase(baseId, baseData))
     }
     return new DummyRepo(bases)
 }
