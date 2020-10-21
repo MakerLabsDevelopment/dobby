@@ -12,7 +12,7 @@ import {
   useRowSelect,
   useBlockLayout,
   useResizeColumns,
-  TableInstance
+  TableInstance,
 } from 'react-table'
 import GlobalFilter from './GlobalFilter'
 import { IndeterminateCheckbox } from './Checkbox'
@@ -44,7 +44,7 @@ const Table = ({
   doCollectionsDeleteRow,
   doCollectionsFetchData,
   doCollectionsUpdateSave,
-  routeParams
+  routeParams,
 }: TableProps) => {
   const name = routeParams.collectionName
   const [columns, setColumns] = useState([
@@ -81,7 +81,7 @@ const Table = ({
     if (collectionsData) {
       setData(collectionsData)
     } else {
-      doCollectionsFetchData(name)
+      // doCollectionsFetchData(name)
     }
   }, [name, collectionsActive, collectionsData])
 
@@ -91,7 +91,11 @@ const Table = ({
     }
   }, [data])
 
-  const updateMyData = async (rowIndex: number, columnId: string, value: any) => {
+  const updateMyData = async (
+    rowIndex: number,
+    columnId: string,
+    value: any,
+  ) => {
     console.log(data, 'DATAs')
     setSkipPageReset(true)
     setData((old: any) =>
@@ -103,7 +107,7 @@ const Table = ({
           }
         }
         return row
-      })
+      }),
     )
   }
 
@@ -117,7 +121,7 @@ const Table = ({
     () => ({
       fuzzyText: fuzzyTextFilterFn,
       text: (rows, id, filterValue) => {
-        return rows.filter(row => {
+        return rows.filter((row) => {
           const rowValue = row.values[id]
           return rowValue !== undefined
             ? String(rowValue)
@@ -127,7 +131,7 @@ const Table = ({
         })
       },
     }),
-    []
+    [],
   )
 
   const defaultColumn = useMemo(
@@ -138,7 +142,7 @@ const Table = ({
       width: 150,
       maxWidth: 400,
     }),
-    []
+    [],
   )
 
   const {
@@ -263,5 +267,5 @@ export default connect(
   'selectCollectionsActive',
   'selectCollectionsData',
   'selectRouteParams',
-  Table
+  Table,
 )

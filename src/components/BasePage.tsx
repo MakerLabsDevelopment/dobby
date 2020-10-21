@@ -1,13 +1,13 @@
 import React from 'react'
-import styles from './BaseScreen.module.css'
+import styles from './BasePage.module.css'
 
-interface BaseScreenProps {
+interface IBasePage {
   children: any
   hasNav: boolean
 }
 
-const BaseScreen = ({ children, hasNav }: BaseScreenProps) => (
-  <div className={styles.screen}>
+const BasePage = ({ children, hasNav }: IBasePage) => (
+  <div className={styles.page}>
     {hasNav && (
       <div className={styles.header}>
         <a className={styles.logo} href='/'>Dobby</a>
@@ -17,14 +17,12 @@ const BaseScreen = ({ children, hasNav }: BaseScreenProps) => (
         </div>
       </div>
     )}
-    <div className={styles.content}>
-      {children}
-    </div>
+    <div className={styles.content}>{children}</div>
   </div>
 )
 
-BaseScreen.defaultProps = {
+BasePage.defaultProps = {
   hasNav: true,
 }
 
-export default BaseScreen
+export { BasePage }

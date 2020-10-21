@@ -24,16 +24,16 @@ class DummyBase {
         this.tables = []
         for (const tableName in baseData.tables) {
             const tableData = baseData.tables[tableName]
-            const tableId = newTableId(uuid.v4().toString()) 
+            const tableId = newTableId(uuid.v4().toString())
             this.tables.push(new DummyTable(
-                tableId, 
+                tableId,
                 tableData.name,
                 new Set(tableData.columns),
                 tableData.rows.map(rowDef => {
                     const cells = new Map()
                     for (const columnIdStr in rowDef) {
                         const rawValue = rowDef[columnIdStr]
-                        let value = null
+                        let value = {}
                         if (typeof rawValue === "number") {
                             value = {
                                 type: "number",
@@ -124,7 +124,7 @@ export class DummyRepo implements DobbyRepo {
         if (table == null) {
             throw new Error("No such table " + tableId.value)
         }
-        const rowId = newRowId(uuid.v4().toString()) 
+        const rowId = newRowId(uuid.v4().toString())
         const row = new DummyRow(rowId, values)
         table.rows.push(row)
         return row

@@ -1,0 +1,19 @@
+.collection {
+  cursor: pointer;
+  margin-left: 15px;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+  color: black;
+}
+
+.active {
+  font-weight: 600;
+}
+
+.nameInput {
+  border: solid 1px hsl(202,10%,88%);
+  border-radius: 3px;
+  max-width: 150px;
+  padding: 10px;
+  font-size: 1.2rem;
+}
