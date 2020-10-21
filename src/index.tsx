@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import { RecoilRoot } from 'recoil'
 import { Provider } from 'redux-bundler-react'
 import getStore from './bundles'
 import './assets/css/index.css'
@@ -57,9 +58,11 @@ if (appContainer == null) {
 
 ReactDOM.render(
   <Provider store={getStore()}>
-    <AppContainer />
+    <RecoilRoot>
+      <AppContainer />
+    </RecoilRoot>
   </Provider>,
-  appContainer
+  appContainer,
 )
 
 serviceWorker.unregister()

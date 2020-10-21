@@ -1,21 +1,26 @@
-import React, { useEffect, ReactElement } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import { connect } from 'redux-bundler-react'
 import ColourHash from 'color-hash'
 import BaseScreen from './BaseScreen'
+import { ErrorBoundary } from './ErrorBoundary'
+import { Loading } from './Loading'
+import { Threads } from './Threads'
 import 'semantic-ui-css/semantic.min.css'
 import styles from './Home.module.css'
 
-interface HomeProps {
+interface IHome {
   authSignedIn: boolean
   doAuthSignIn: () => any
+  doThreadsCreate: () => any
   threadsData: any
 }
 
 const Home = ({
   authSignedIn,
   doAuthSignIn,
-  threadsData
-}: HomeProps): ReactElement<HomeProps> => {
+  doThreadsCreate,
+  threadsData,
+}: IHome): React.ReactElement<IHome> => {
   useEffect(() => {
     if (authSignedIn) {
       doAuthSignIn()
@@ -29,7 +34,12 @@ const Home = ({
 
   return (
     <BaseScreen>
-      <h1>Databases</h1>
+      <ErrorBoundary>
+        <Suspense fallback={<Loading />}>
+          <Threads />
+        </Suspense>
+      </ErrorBoundary>
+      <button onClick={doThreadsCreate}>New</button>
       <div className={styles.threadsList}>
         {threadsData && threadsData.map((thread: any, index: number) => (
           <a className={styles.thread} key={index} href={`/threads/${thread.id}`}>
@@ -49,7 +59,8 @@ const Home = ({
 
 export default connect(
   'doAuthSignIn',
+  'doThreadsCreate',
   'selectAuthSignedIn',
   'selectThreadsData',
-  Home
+  Home,
 )

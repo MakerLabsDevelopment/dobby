@@ -14,7 +14,4 @@ const AppContainer = ({ route }: AppContainerProps) => {
   )
 }
 
-export default connect(
-  'selectRoute',
-  AppContainer
-)
+export default connect('selectRoute', AppContainer)

@@ -24,7 +24,7 @@ const BaseScreen = ({ children, hasNav }: BaseScreenProps) => (
 )
 
 BaseScreen.defaultProps = {
-  hasNav: true
+  hasNav: true,
 }
 
 export default BaseScreen
