@@ -58,6 +58,17 @@ const EditableCell = ({
     )
   }
 
+  if (type === 'single_select') {
+    return (
+      <select value={value} onChange={onChange}>
+        <option value="grapefruit">Grapefruit</option>
+        <option value="lime">Lime</option>
+        <option value="coconut">Coconut</option>
+        <option value="mango">Mango</option>
+      </select>
+    )
+  }
+
   if (type === 'collaborator') {
     return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
   }
