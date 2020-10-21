@@ -8,6 +8,7 @@
     "@types/jdenticon": "^2.2.0",
     "@types/match-sorter": "^4.0.0",
     "@types/react-table": "^7.0.23",
+    "@types/uuid": "^8.3.0",
     "browser-image-resizer": "^2.1.0",
     "browser-image-size": "^1.1.0",
     "clsx": "^1.1.1",
