@@ -1,10 +1,10 @@
 import { atom, selector, RecoilValueReadOnly, AtomOptions, ReadOnlySelectorOptions } from 'recoil'
 import type { RecoilState } from 'recoil'
 import { PrivateKey, Client, ThreadID } from '@textile/hub'
-import type { DobbyRepo, Base} from '../model'
+import type { DobbyRepo, Base, Row} from '../model'
 import { equalIds } from '../model'
 import * as dummy from '../model/dummy'
-import {newColumnId, BaseID, Table} from '../model/model'
+import {newColumnId, BaseID, Table, TableID} from '../model/model'
 
 const collectionSchema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
@@ -58,10 +58,12 @@ const dobbyRepo: RecoilState<DobbyRepo> = atom({
                         {
                             id: newColumnId("col1"),
                             description: "ID",
+                            type: 'string',
                         },
                         {
                             id: newColumnId("col2"),
                             description: "Number of dogs",
+                            type: 'number',
                         }
                     ],
                     name: "table1",
@@ -79,10 +81,12 @@ const dobbyRepo: RecoilState<DobbyRepo> = atom({
                         {
                             id: newColumnId("col1"),
                             description: "ID",
+                            type: 'string',
                         },
                         {
                             id: newColumnId("col2"),
                             description: "Number of dogs",
+                            type: 'number',
                         }
                     ],
                     name: "table1",
@@ -177,19 +181,56 @@ const tablesSelector: RecoilValueReadOnly<Table[]> = selector({
     },
 })
 
-// const collectionCreateSelector = selectorFamily({
-//   key: 'collectionCreate',
-//   get: (name) => async ({ get }) => {
-//     const client = get(clientQuerySelector)
-//     const threadActiveId = get(threadActiveIdState)
-//     const namedSchema = (schema.title = name)
-//     await client.newCollection(threadActiveId, name, namedSchema)
-//     const data = { _id: Math.random().toString(36), name: '', count: 0 }
-//     const collection = await client.create(threadActiveId, name, data)
-//     console.log(collection)
-//     return collection
-//   },
-// })
+const activeTableIdOptions: AtomOptions<TableID | null> = {
+    key: 'activeTableId',
+    default: null,
+}
+const activeTableId = atom(activeTableIdOptions)
+
+const activeTableOptions: ReadOnlySelectorOptions<Table | null> = {
+    key: "activeTable",
+    get: async ({ get }) => {
+        const base = get(activeBase)
+        if (base == null) {
+            return null
+        }
+        const tableId = get(activeTableId)
+        if (tableId == null){
+            if (base.tables.length > 0) {
+                return base.tables[0]
+            } else {
+                return null
+            }
+        }
+        const table = base.tables.find(t => equalIds(tableId, t.id))
+        if (table == null) {
+            return null
+        }
+        return table
+    },
+}
+const activeTable: RecoilValueReadOnly<Table | null> = selector(activeTableOptions)
+
+const activeTableRows: RecoilValueReadOnly<Row[]> = selector({
+    key: "activeTableRows",
+    get: async ({ get }) => {
+        const activeBaseVal = get(activeBase)
+        if (activeBaseVal == null) {
+            return []
+        }
+        const activeTableVal = get(activeTable)
+        if (activeTableVal == null) {
+            return []
+        }
+        const repo = get(dobbyRepo)
+        const rows = await repo.rowsForTable(activeBaseVal.id, activeTableVal.id)
+        if (rows == null) {
+            return []
+        } else {
+            return rows
+        }
+    }
+})
 
 export {
   clientQuerySelector,
@@ -201,4 +242,7 @@ export {
   activeBaseId,
   basesSelector,
   tablesSelector,
+  activeTableId,
+  activeTable,
+  activeTableRows
 }

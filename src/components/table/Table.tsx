@@ -22,60 +22,50 @@ import TableBody from './TableBody'
 import Pagination from './Pagination'
 import EditableCell from './EditableCell'
 import styles from './Table.module.css'
+import type { Table as ModelTable } from '../../model'
 
 type Data = object
 
 interface TableProps {
   collectionsActive: any
   collectionsData: any
-  doCollectionsAddColumn: (name: string, schema_type: string) => any
-  doCollectionsAddRow: (name: string, emptyRow: any) => any
-  doCollectionsDeleteRow: (name: string, instanceId: string) => any
-  doCollectionsFetchData: (name: string) => any
   doCollectionsUpdateSave: (name: string, data: any) => any
+  table: ModelTable,
+  tableRows: Row[],
   routeParams: any
 }
 
 const Table = ({
   collectionsActive,
   collectionsData,
-  doCollectionsAddColumn,
-  doCollectionsAddRow,
-  doCollectionsDeleteRow,
-  doCollectionsFetchData,
   doCollectionsUpdateSave,
+  table,
+  tableRows,
   routeParams,
 }: TableProps) => {
   const name = routeParams.collectionName
-  const [columns, setColumns] = useState([
-      {
-        Header: 'id',
-        accessor: '_id',
-        type: 'single_line_text',
-        filter: 'fuzzyText',
-      },
-      {
-        Header: 'Name',
-        accessor: 'name',
-        type: 'single_line_text',
-        filter: 'fuzzyText',
-        aggregate: 'count',
-        Aggregated: ({ value }) => `${value} Names`,
-      },
-      {
-        Header: 'Missions',
-        accessor: 'missions',
-        type: 'number',
-        filter: 'fuzzyText',
-        aggregate: 'uniqueCount',
-        Aggregated: ({ value }) => `${value} Unique Names`,
-      },
-    ],
-  )
-  const [data, setData] = useState([])
+  const columns = table.columns.map(c => {
+    let colType = null
+    // TODO These types should be an enum somewhere
+    if (c.type === "string") {
+      colType = "single_line_text"
+    } else if (c.type === "number") {
+      colType = "number"
+    }
+    return {
+      Header: c.description,
+      accessor: (r: Row) => r.values.get(c.id),
+      type: colType,
+      filter: "fuzzyText",
+    }
+  })
+  //const [data, setData] = useState(tableRows)
+  const setData = () => "noop"
   const [skipPageReset, setSkipPageReset] = useState(false)
   const skipResetRef = useRef(false)
   const skipReset = skipResetRef.current
+
+  const setColumns = () => console.log("setting columns")
 
   useEffect(() => {
     if (collectionsData) {
@@ -96,7 +86,6 @@ const Table = ({
     columnId: string,
     value: any,
   ) => {
-    console.log(data, 'DATAs')
     setSkipPageReset(true)
     setData((old: any) =>
       old.map((row: any, index: number) => {
@@ -234,7 +223,7 @@ const Table = ({
           setColumns={setColumns}
         />
         <TableBody
-          data={data}
+          data={tableRows}
           getTableBodyProps={getTableBodyProps}
           page={page}
           prepareRow={prepareRow}

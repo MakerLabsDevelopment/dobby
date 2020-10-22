@@ -6,7 +6,7 @@ type Id<T extends String> = {
 }
 
 export function equalIds<S extends string, T1 extends Id<S>, T2 extends Id<S>>(id1: T1, id2: T2): boolean {
-    return id1.value == id2.value
+    return id1.value === id2.value
 }
 
 export type BaseID = Id<'base'>
@@ -28,12 +28,13 @@ export interface Base {
 export interface Table {
     id: TableID,
     name: string,
-    columns: Set<Column>,
+    columns: Array<Column>,
 }
 
 export interface Column {
     id: ColumnID,
     description: string,
+    type: "string" | "number"
 }
 
 // The union of all possible cell values, will be expanded to include things
@@ -58,7 +59,7 @@ export interface Row {
 
 export interface DobbyRepo {
     listBases(): Promise<Base[]>,
-    createTable(baseId: BaseID, name: string, columns: Set<Column>): Promise<Table>,
+    createTable(baseId: BaseID, name: string, columns: Array<Column>): Promise<Table>,
     rowsForTable(baseId: BaseID, tableId: TableID): Promise<Row[] | null>,
     insertRow(baseId: BaseID, tableId: TableID, values: Map<ColumnID, CellValue>): Promise<Row>,
     updateRow(baseId: BaseID, tableId: TableID, rowId: RowID, newValues: Map<ColumnID, CellValue>): Promise<void>,

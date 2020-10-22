@@ -1,4 +1,4 @@
-import {BaseID, TableID, ColumnID, RowID, Base, Table, Column, Row, CellValue, DobbyRepo, newTableId, newRowId, newColumnId, newBaseId} from "./model"
+import {BaseID, TableID, ColumnID, RowID, Base, Table, Column, Row, CellValue, DobbyRepo, newTableId, newRowId, newColumnId, newBaseId, equalIds} from "./model"
 import * as uuid from "uuid"
 
 
@@ -30,7 +30,7 @@ class DummyBase {
             this.tables.push(new DummyTable(
                 tableId,
                 tableData.name,
-                new Set(tableData.columns),
+                tableData.columns,
                 tableData.rows.map(rowDef => {
                     const cells = new Map()
                     for (const columnIdStr in rowDef) {
@@ -64,10 +64,10 @@ class DummyBase {
 class DummyTable {
     id: TableID
     name: string
-    columns: Set<Column>
+    columns: Array<Column>
     rows: DummyRow[]
 
-    constructor(id: TableID, name: string, columns: Set<Column>, rows: DummyRow[]) {
+    constructor(id: TableID, name: string, columns: Array<Column>, rows: DummyRow[]) {
         this.id = id
         this.name = name
         this.columns = columns
@@ -101,13 +101,13 @@ export class DummyRepo implements DobbyRepo {
         if (base == null) {
             return null
         }
-        const table = base.tables.find(t => t.id == tableId)
+        const table = base.tables.find(t => equalIds(t.id, tableId))
         if (table == null) {
             throw new Error("No such table")
         }
         return table.rows
     }
-    public async createTable(baseId: BaseID, name: string, columns: Set<Column>): Promise<Table> {
+    public async createTable(baseId: BaseID, name: string, columns: Array<Column>): Promise<Table> {
         const base = this.bases.get(baseId)
         if (base == null) {
             throw new Error("No such base " + baseId.value)
@@ -122,7 +122,7 @@ export class DummyRepo implements DobbyRepo {
         if (base == null) {
             throw new Error("No such base " + baseId.value)
         }
-        const table = base.tables.find(t => t.id == tableId)
+        const table = base.tables.find(t => equalIds(t.id, tableId))
         if (table == null) {
             throw new Error("No such table " + tableId.value)
         }
@@ -137,12 +137,12 @@ export class DummyRepo implements DobbyRepo {
             throw new Error("No such base " + baseId)
         }
 
-        const table = base.tables.find(t => t.id == tableId)
+        const table = base.tables.find(t => equalIds(t.id, tableId))
         if (table == null) {
             throw new Error("No such table " + tableId)
         }
 
-        const row = table.rows.find(r => r.id == rowId)
+        const row = table.rows.find(r => equalIds(r.id, rowId))
         if (row == null) {
             throw new Error("No such row " + rowId)
         }
@@ -154,12 +154,12 @@ export class DummyRepo implements DobbyRepo {
         if (base == null) {
             throw new Error("No such base " + baseId)
         }
-const table = base.tables.find(t => t.id == tableId)
+        const table = base.tables.find(t => equalIds(t.id, tableId))
         if (table == null) {
             throw new Error("No such table " + tableId)
         }
 
-        const row = table.rows.find(r => r.id == rowId)
+        const row = table.rows.find(r => equalIds(r.id, rowId))
         if (row == null) {
             throw new Error("No such row " + rowId)
         }
