@@ -51,7 +51,7 @@ const TableName = ({ table } : {table: Table}) => {
       {!activeCollection && (
         <a
           className={styles.tableName}
-          href={`/threads/${baseId}/${table.name}`}
+          href={`/bases/${baseId?.value}/${table.name}`}
         >
           {table.name}
         </a>
