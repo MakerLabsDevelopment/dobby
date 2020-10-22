@@ -1,12 +1,12 @@
 import React from 'react'
-import styles from './BasePage.module.css'
+import styles from './RootPage.module.css'
 
-interface IBasePage {
+interface IRootPage {
   children: any
   hasNav: boolean
 }
 
-const BasePage = ({ children, hasNav }: IBasePage) => (
+const RootPage = ({ children, hasNav }: IRootPage) => (
   <div className={styles.page}>
     {hasNav && (
       <div className={styles.header}>
@@ -21,8 +21,8 @@ const BasePage = ({ children, hasNav }: IBasePage) => (
   </div>
 )
 
-BasePage.defaultProps = {
+RootPage.defaultProps = {
   hasNav: true,
 }
 
-export { BasePage }
+export { RootPage }

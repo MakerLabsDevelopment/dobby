@@ -1,5 +1,9 @@
-import { atom, selector, selectorFamily, useRecoilCallback } from 'recoil'
+import { atom, selector, RecoilValueReadOnly, } from 'recoil'
+import type { RecoilState } from 'recoil'
 import { PrivateKey, Client, ThreadID } from '@textile/hub'
+import type { DobbyRepo, Base } from '../model'
+import * as dummy from '../model/dummy'
+import {newColumnId} from '../model/model'
 
 const collectionSchema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
@@ -11,26 +15,6 @@ const collectionSchema = {
     missions: {
       type: 'number',
       minimum: 0,
-    },
-  },
-}
-
-const columnsSchema = {
-  $schema: 'http://json-schema.org/draft-07/schema#',
-  title: { type: 'string' },
-  type: 'object',
-  properties: {
-    Header: { type: 'string' },
-    columns: {
-      type: 'array',
-      items: {
-        Header: { type: 'string' },
-        accessor: { type: 'string' },
-        width: { type: 'string' },
-        aggregate: { type: 'string' },
-      },
-      minItems: 1,
-      uniqueItems: true,
     },
   },
 }
@@ -60,6 +44,58 @@ const clientQuerySelector = selector({
   },
 })
 
+const dobbyRepo: RecoilState<DobbyRepo> = atom({
+    key: "dobbyRepo",
+    default: dummy.newDummyRepo([
+        {
+            name: "Base 1",
+            tables: {
+                "table1": {
+                    columns: [
+                        {
+                            id: newColumnId("col1"),
+                            description: "ID",
+                        },
+                        {
+                            id: newColumnId("col2"),
+                            description: "Number of dogs",
+                        }
+                    ],
+                    name: "table1",
+                    rows: [],
+                }
+            }
+        },
+        {
+            name: "Base 2",
+            tables: {
+                "table1": {
+                    columns: [
+                        {
+                            id: newColumnId("col1"),
+                            description: "ID",
+                        },
+                        {
+                            id: newColumnId("col2"),
+                            description: "Number of dogs",
+                        }
+                    ],
+                    name: "table1",
+                    rows: [],
+                }
+            }
+        }
+    ])
+})
+
+const basesSelector: RecoilValueReadOnly<Base[]> = selector({
+    key: 'bases',
+    get: async ({ get }) => {
+        const repo = get(dobbyRepo)
+        return repo.listBases()
+    },
+})
+
 const threadsQuerySelector = selector({
   key: 'threads',
   get: async ({ get }) => {
@@ -83,6 +119,9 @@ const collectionsQuerySelector = selector({
   get: async ({ get }) => {
     const client = get(clientQuerySelector)
     const threadActiveId = get(threadActiveIdState)
+    if (threadActiveId == null) {
+      return []
+    }
     try {
       const threadId = ThreadID.fromString(threadActiveId)
       const collections = await client.listCollections(threadId)
@@ -119,4 +158,5 @@ export {
   threadActiveIdState,
   threadsQuerySelector,
   collectionSchema,
+  basesSelector,
 }

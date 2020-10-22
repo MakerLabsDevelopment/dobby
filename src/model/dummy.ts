@@ -1,5 +1,5 @@
 import {BaseID, TableID, ColumnID, RowID, Base, Table, Column, Row, CellValue, DobbyRepo, newTableId, newRowId, newColumnId, newBaseId} from "./model"
-import uuid from "uuid"
+import * as uuid from "uuid"
 
 
 interface DummyBaseData {

@@ -3,7 +3,7 @@ import { connect } from 'redux-bundler-react'
 import { useSetRecoilState, useRecoilCallback } from 'recoil'
 import { Loading } from '../components/Loading'
 import { Collections } from '../components/Collections'
-import { BasePage } from '../components/BasePage'
+import { RootPage } from '../components/RootPage'
 import Table from '../components/table/Table'
 import {
   collectionSchema,
@@ -13,15 +13,15 @@ import {
 import { ThreadID } from '@textile/hub'
 import { v4 as uuidv4 } from 'uuid'
 
-import styles from './ThreadPage.module.css'
+import styles from './BasePage.module.css'
 
-interface IThreadPage {
+interface IBasePage {
   routeParams: any
 }
 
-const ThreadPageComponent = ({
+const BasePageComponent = ({
   routeParams: { threadId },
-}: IThreadPage) => {
+}: IBasePage) => {
   const setThreadActiveId = useSetRecoilState(threadActiveIdState)
   useEffect(() => {
     setThreadActiveId(threadId)
@@ -45,7 +45,7 @@ const ThreadPageComponent = ({
   })
 
   return (
-    <BasePage>
+    <RootPage>
       <div className={styles.optionsRow}>
         <Suspense fallback={<Loading />}>
           <Collections />
@@ -55,13 +55,13 @@ const ThreadPageComponent = ({
         </div>
       </div>
       <Table />
-    </BasePage>
+    </RootPage>
   )
 }
 
-const ThreadPage = connect(
+const BasePage = connect(
   'selectRouteParams',
-  ThreadPageComponent,
+  BasePageComponent,
 )
 
-export { ThreadPage }
+export { BasePage }
