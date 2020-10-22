@@ -14,6 +14,8 @@ import {
   useResizeColumns,
   TableInstance,
 } from 'react-table'
+import { useRecoilValue } from 'recoil'
+import { collectionsDataQuerySelector } from '../../state'
 import GlobalFilter from './GlobalFilter'
 import { IndeterminateCheckbox } from './Checkbox'
 import TableActionsBar from './TableActionsBar'
@@ -27,7 +29,6 @@ type Data = object
 
 interface TableProps {
   collectionsActive: any
-  collectionsData: any
   doCollectionsAddColumn: (name: string, schema_type: string) => any
   doCollectionsAddRow: (name: string, emptyRow: any) => any
   doCollectionsDeleteRow: (name: string, instanceId: string) => any
@@ -38,7 +39,6 @@ interface TableProps {
 
 const Table = ({
   collectionsActive,
-  collectionsData,
   doCollectionsAddColumn,
   doCollectionsAddRow,
   doCollectionsDeleteRow,
@@ -72,18 +72,20 @@ const Table = ({
       },
     ],
   )
+  // const collectionsData = useRecoilValue(collectionsDataQuerySelector)
+  // console.log(collectionsData && collectionsData, 'DFD')
   const [data, setData] = useState([])
   const [skipPageReset, setSkipPageReset] = useState(false)
   const skipResetRef = useRef(false)
   const skipReset = skipResetRef.current
 
-  useEffect(() => {
-    if (collectionsData) {
-      setData(collectionsData)
-    } else {
-      // doCollectionsFetchData(name)
-    }
-  }, [name, collectionsActive, collectionsData])
+  // useEffect(() => {
+  //   if (collectionsData) {
+  //     setData(collectionsData)
+  //   } else {
+  //     // doCollectionsFetchData(name)
+  //   }
+  // }, [name, collectionsActive, collectionsData])
 
   useEffect(() => {
     if (data.length > 1) {

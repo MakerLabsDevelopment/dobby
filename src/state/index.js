@@ -98,6 +98,27 @@ const collectionsQuerySelector = selector({
   },
 })
 
+const collectionsDataQuerySelector = selector({
+  key: 'collectionsData',
+  get: async ({ get }) => {
+    const client = get(clientQuerySelector)
+    const threadActiveId = get(threadActiveIdState)
+    try {
+      const threadId = ThreadID.fromString(threadActiveId)
+      const collectionsData = await client.find(threadId, 'Astronaut', {})
+      const sortedCollections = collectionsData.sort((a, b) => {
+        let textA = a.name.toUpperCase()
+        let textB = b.name.toUpperCase()
+        return (textA < textB) ? -1 : (textA > textB) ? 1 : 0
+      })
+      console.log(sortedCollections, 'GG')
+      return sortedCollections
+    } catch (err) {
+      throw err
+    }
+  },
+})
+
 // const collectionCreateSelector = selectorFamily({
 //   key: 'collectionCreate',
 //   get: (name) => async ({ get }) => {
@@ -116,6 +137,7 @@ export {
   clientQuerySelector,
   // collectionCreateSelector,
   collectionsQuerySelector,
+  collectionsDataQuerySelector,
   threadActiveIdState,
   threadsQuerySelector,
   collectionSchema,
