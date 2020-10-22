@@ -1,9 +1,10 @@
-import { atom, selector, RecoilValueReadOnly, } from 'recoil'
+import { atom, selector, RecoilValueReadOnly, AtomOptions, ReadOnlySelectorOptions } from 'recoil'
 import type { RecoilState } from 'recoil'
 import { PrivateKey, Client, ThreadID } from '@textile/hub'
-import type { DobbyRepo, Base } from '../model'
+import type { DobbyRepo, Base} from '../model'
+import { equalIds } from '../model'
 import * as dummy from '../model/dummy'
-import {newColumnId} from '../model/model'
+import {newColumnId, BaseID, Table} from '../model/model'
 
 const collectionSchema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
@@ -49,8 +50,10 @@ const dobbyRepo: RecoilState<DobbyRepo> = atom({
     default: dummy.newDummyRepo([
         {
             name: "Base 1",
+            id: "base1id",
             tables: {
                 "table1": {
+                    id: "table1base1id",
                     columns: [
                         {
                             id: newColumnId("col1"),
@@ -68,8 +71,10 @@ const dobbyRepo: RecoilState<DobbyRepo> = atom({
         },
         {
             name: "Base 2",
+            id: "base2id",
             tables: {
                 "table1": {
+                    id: "table1base2id",
                     columns: [
                         {
                             id: newColumnId("col1"),
@@ -137,6 +142,41 @@ const collectionsQuerySelector = selector({
   },
 })
 
+const baseIdOptions: AtomOptions<BaseID | null> = {
+    key: "activeBaseId",
+    default: null,
+}
+const activeBaseId: RecoilState<BaseID | null> = atom(baseIdOptions)
+
+const baseOptions: ReadOnlySelectorOptions<Base | null> = {
+    key: "activeBase",
+    get: async ({ get }) => {
+        const baseId = get(activeBaseId)
+        if (baseId == null) {
+            return null
+        }
+        const repo = get(dobbyRepo)
+        const bases = await repo.listBases()
+        const base = bases.find(b => equalIds(b.id, baseId))
+        if (base != null) {
+            return base
+        }
+        return null
+    },
+}
+const activeBase: RecoilValueReadOnly<Base | null> = selector(baseOptions)
+
+const tablesSelector: RecoilValueReadOnly<Table[]> = selector({
+    key: "tables",
+    get: async ({ get }) => {
+        const base = get(activeBase)
+        if (base == null) {
+            return []
+        }
+        return base.tables
+    },
+})
+
 // const collectionCreateSelector = selectorFamily({
 //   key: 'collectionCreate',
 //   get: (name) => async ({ get }) => {
@@ -158,5 +198,7 @@ export {
   threadActiveIdState,
   threadsQuerySelector,
   collectionSchema,
+  activeBaseId,
   basesSelector,
+  tablesSelector,
 }

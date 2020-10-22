@@ -2,11 +2,12 @@ import React, { useState, useEffect, useRef } from 'react'
 import { connect } from 'redux-bundler-react'
 import clsx from 'clsx'
 import { useRecoilValue } from 'recoil'
-import { threadActiveIdState } from '../state'
-import styles from './Collection.module.css'
+import { activeBaseId } from '../state'
+import styles from './TableName.module.css'
+import {Table} from '../model'
 
-const CollectionComponent = ({ collection: { name } }: any) => {
-  const threadId = useRecoilValue(threadActiveIdState)
+const TableName = ({ table } : {table: Table}) => {
+  const baseId = useRecoilValue(activeBaseId)
   const [newCollectionName, setNewCollectionName] = useState('')
   const [editActiveCollectionName, setEditActiveCollectionName] = useState(false)
 
@@ -36,7 +37,7 @@ const CollectionComponent = ({ collection: { name } }: any) => {
           className={clsx(styles.collection, styles.active)}
           onDoubleClick={() => setEditActiveCollectionName(true)}
         >
-          {!editActiveCollectionName && (<span>{name}</span>)}
+          {!editActiveCollectionName && (<span>{table.name}</span>)}
           {editActiveCollectionName && (
             <input
               ref={wrapperRef}
@@ -49,19 +50,19 @@ const CollectionComponent = ({ collection: { name } }: any) => {
       )}
       {!activeCollection && (
         <a
-          className={styles.collection}
-          href={`/threads/${threadId}/${name}`}
+          className={styles.tableName}
+          href={`/threads/${baseId}/${table.name}`}
         >
-          {name}
+          {table.name}
         </a>
       )}
     </>
   )
 }
 
-const Collection  = connect(
+const ConnectedTableName  = connect(
   'selectRouteParams',
-  CollectionComponent,
+  TableName,
 )
 
-export { Collection }
+export { ConnectedTableName as TableName }

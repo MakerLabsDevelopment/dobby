@@ -5,6 +5,10 @@ type Id<T extends String> = {
     value: string,
 }
 
+export function equalIds<S extends string, T1 extends Id<S>, T2 extends Id<S>>(id1: T1, id2: T2): boolean {
+    return id1.value == id2.value
+}
+
 export type BaseID = Id<'base'>
 export type TableID = Id<'table'>
 export type ColumnID = Id<'column'>
