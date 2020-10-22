@@ -1,16 +1,16 @@
 import React, { Suspense } from 'react'
-import { BasePage } from '../components/BasePage'
+import { RootPage } from '../components/RootPage'
 import { Loading } from '../components/Loading'
-import { Threads } from '../components/Threads'
+import { Bases } from '../components/Bases'
 import 'semantic-ui-css/semantic.min.css'
 
 const HomePage = (): React.ReactElement => (
-  <BasePage>
+  <RootPage>
     <h1>Databases</h1>
     <Suspense fallback={<Loading />}>
-      <Threads />
+      <Bases />
     </Suspense>
-  </BasePage>
+  </RootPage>
 )
 
 export { HomePage }

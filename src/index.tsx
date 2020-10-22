@@ -6,49 +6,6 @@ import getStore from './bundles'
 import AppContainer from './components/AppContainer'
 import * as serviceWorker from './serviceWorker'
 import './assets/css/index.css'
-import * as dummy from "./model/dummy"
-import {newColumnId} from './model/model'
-
-const dummyRepo = dummy.newDummyRepo([
-    {
-        name: "Base 1",
-        tables: {
-            "table1": {
-                columns: [
-                    {
-                        id: newColumnId("col1"),
-                        description: "ID",
-                    },
-                    {
-                        id: newColumnId("col2"),
-                        description: "Number of dogs",
-                    }
-                ],
-                name: "table1",
-                rows: [],
-            }
-        }
-    },
-    {
-        name: "Base 2",
-        tables: {
-            "table1": {
-                columns: [
-                    {
-                        id: newColumnId("col1"),
-                        description: "ID",
-                    },
-                    {
-                        id: newColumnId("col2"),
-                        description: "Number of dogs",
-                    }
-                ],
-                name: "table1",
-                rows: [],
-            }
-        }
-    }
-])
 
 const appContainer = document.getElementById('root')
 if (appContainer == null) {

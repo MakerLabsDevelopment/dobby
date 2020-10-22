@@ -1,11 +1,13 @@
 import {BaseID, TableID, ColumnID, RowID, Base, Table, Column, Row, CellValue, DobbyRepo, newTableId, newRowId, newColumnId, newBaseId} from "./model"
-import uuid from "uuid"
+import * as uuid from "uuid"
 
 
 interface DummyBaseData {
     name: string,
+    id: string,
     tables: {
         [index: string]: {
+            id: string,
             columns: Column[],
             name: string,
             rows: {[index: string]: CellValue}[],
@@ -24,7 +26,7 @@ class DummyBase {
         this.tables = []
         for (const tableName in baseData.tables) {
             const tableData = baseData.tables[tableName]
-            const tableId = newTableId(uuid.v4().toString())
+            const tableId = newTableId(tableData.id)
             this.tables.push(new DummyTable(
                 tableId,
                 tableData.name,
@@ -170,7 +172,7 @@ const table = base.tables.find(t => t.id == tableId)
 export function newDummyRepo(dummyData: DummyBaseData[]): DobbyRepo {
     const bases = new Map()
     for (const baseData of dummyData) {
-        const baseId = newBaseId(uuid.v4().toString())
+        const baseId = newBaseId(baseData.id)
         bases.set(baseId, new DummyBase(baseId, baseData))
     }
     return new DummyRepo(bases)
