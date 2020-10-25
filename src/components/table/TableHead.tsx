@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import clsx from 'clsx'
 import ColumnOptionsMenu from './ColumnOptionsMenu'
 import styles from './TableHead.module.css'
 
@@ -53,12 +52,6 @@ const TableHead = ({ headerGroups, setColumns }: TableHeadProps) => {
                   ) : null}
                   <span>
                     {column.render('Header')}
-                    {column.canResize && (
-                      <div
-                        {...column.getResizerProps()}
-                        className={clsx(styles.resizer, column.isResizing && styles.isResizing)}
-                      />
-                    )}
                     {column.isSorted
                       ? column.isSortedDesc
                         ? ' 🔽'

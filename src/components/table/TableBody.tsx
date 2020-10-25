@@ -1,45 +1,41 @@
 import React, { useState } from 'react'
 import RowOptionsMenu from './RowOptionsMenu'
 import styles from './TableBody.module.css'
+import {Row, RowID, equalIds} from '../../model'
+import type { Row as ReactTableRow } from "react-table"
 
 
 interface TableBodyProps {
-  data: Object[]
-  page: any[]
+  data: Row[]
+  page: ReactTableRow<Row>[]
   getTableBodyProps: () => any
-  prepareRow: (row: any) => any
+  prepareRow: (row: ReactTableRow<Row>) => any
   setData: (data: Object[]) => any
+  addEmptyRow: (index?: number) => void
 }
 
 const TableBody = ({
-  data,
   getTableBodyProps,
   page,
   prepareRow,
-  setData
+  addEmptyRow,
 }: TableBodyProps) => {
   const [showRowOptionsMenu, setShowRowOptionsMenu] = useState(false)
-  const [xPos, setXPost] = useState('')
+  const [xPos, setXPos] = useState('')
   const [yPos, setYPos] = useState('')
-  const [rowId, setRowId] = useState('')
+  const [rowId, setRowId] = useState<null | RowID>(null)
 
-  const onRightClickRow = (e, id) => {
+  const onRightClickRow = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, id: RowID) => {
     e.preventDefault()
-    setXPost(e.pageX + "px")
+    setXPos(e.pageX + "px")
     setYPos(e.pageY + "px")
     setRowId(id)
     setShowRowOptionsMenu(true)
   }
 
-  const addRow = () => {
-    const emptyRowObject = { _id: Math.random().toString(36), name: "", count: 0 }
-    setData([...data, emptyRowObject])
-    // doCollectionsAddRow(name, emptyRowObject)
-  }
-
   return (
     <div {...getTableBodyProps()} className={styles.tableBody}>
-      {page.map((row: any) => {
+      {page.map((row) => {
         prepareRow(row)
         return (
           <div
@@ -59,7 +55,7 @@ const TableBody = ({
                   ) : cell.isPlaceholder ? null : (
                     cell.render('Cell', { editable: true })
                   )}
-                  {showRowOptionsMenu && row.values._id === rowId && (
+                  {showRowOptionsMenu && (rowId != null ? equalIds(row.original.id, rowId) : false) && (
                     <RowOptionsMenu
                       onClose={() => setShowRowOptionsMenu(false)}
                       rowId={rowId}
@@ -73,7 +69,7 @@ const TableBody = ({
           </div>
         )
       })}
-      <button onClick={addRow}>add row</button>
+    <button onClick={() => addEmptyRow()}>add row</button>
     </div>
   )
 }

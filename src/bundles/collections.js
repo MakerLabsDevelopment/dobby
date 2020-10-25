@@ -1,5 +1,4 @@
 import { set, updateAll } from 'shades'
-import { createSelector } from 'redux-bundler'
 
 const schema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
@@ -15,26 +14,6 @@ const schema = {
   },
 }
 
-const columnsSchema = {
-  $schema: 'http://json-schema.org/draft-07/schema#',
-  title: { type: 'string' },
-  type: 'object',
-  properties: {
-    Header: { type: 'string' },
-    columns: {
-      type: 'array',
-      items: {
-        Header: { type: 'string' },
-        accessor: { type: 'string' },
-        width: { type: 'string' },
-        aggregate: { type: 'string' },
-      },
-      minItems: 1,
-      uniqueItems: true,
-    },
-  },
-}
-
 export default {
   name: 'collections',
   getReducer: () => {
@@ -44,7 +23,7 @@ export default {
       loading: false,
       data: null,
     }
-    return (state = initialData, { type, payload, err }) => {
+    return (state = initialData, { type, payload, _err} ) => {
       if (type.startsWith('COLLECTIONS') && type.endsWith('_START')) {
         return set('loading')(true)(state)
       }
@@ -229,22 +208,6 @@ export default {
         })
     }
   },
-  // reactCollectionsPath: createSelector(
-  //   'selectThreadsActive',
-  //   'selectCollectionsActive',
-  //   'selectCollectionsList',
-  //   'selectAuthClient',
-  //   'selectCollectionsLoading',
-  //   'selectRouteParams',
-  //   (thread, active, list, client, loading, { collectionName }) => {
-  //     if (client && !active && !loading && thread && collectionName) {
-  //       return { actionCreator: 'doCollectionsFetchActive', args: [collectionName] }
-  //     }
-  //     if (client && !list && !loading && thread) {
-  //       return { actionCreator: 'doCollectionsFetch' }
-  //     }
-  //   },
-  // ),
   selectCollectionsLoading: (state) => state.collections.loading,
   selectCollectionsList: (state) => state.collections.list,
   selectCollectionsActive: (state) => state.collections.active,

@@ -54,7 +54,7 @@ export type NumericCellValue = {
 
 export interface Row {
     id: RowID,
-    cells: Map<ColumnID, CellValue>,
+    cellValue(columnId: ColumnID): CellValue | null
 }
 
 export interface DobbyRepo {

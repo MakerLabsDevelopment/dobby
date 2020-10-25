@@ -1,4 +1,4 @@
-import {BaseID, TableID, ColumnID, RowID, Base, Table, Column, Row, CellValue, DobbyRepo, newTableId, newRowId, newColumnId, newBaseId, equalIds} from "./model"
+import {BaseID, TableID, ColumnID, RowID, Base, Table, Column, Row, CellValue, DobbyRepo, newTableId, newRowId, newBaseId, equalIds, newColumnId} from "./model"
 import * as uuid from "uuid"
 
 
@@ -31,34 +31,33 @@ class DummyBase {
                 tableId,
                 tableData.name,
                 tableData.columns,
-                tableData.rows.map(rowDef => {
-                    const cells = new Map()
-                    for (const columnIdStr in rowDef) {
-                        const rawValue = rowDef[columnIdStr]
-                        let value = {}
-                        if (typeof rawValue === "number") {
-                            value = {
-                                type: "number",
-                                value: rawValue,
-                            }
-                        } else if (typeof rawValue === "string") {
-                            value = {
-                                type: "string",
-                                value: rawValue
-                            }
-                        } else {
-                            throw  new Error("Unsupported value " + rawValue.toString())
-                        }
-                        cells.set(newColumnId(columnIdStr), value)
-                    }
-                    return new DummyRow(
-                        newRowId(uuid.v4().toString()),
-                        cells,
-                    )
-                })
+                tableData.rows.map(d => {
+                  const vals: Map<ColumnID, CellValue> = new Map()
+                  for (const rawColId in d) {
+                    vals.set(newColumnId(rawColId), d[rawColId])
+                  }
+                  return new DummyRow(newRowId(uuid.v4().toString()), vals)
+                }),
             ))
         }
     }
+}
+
+class DummyRow implements Row {
+  id: RowID
+  cellValues: Map<string, CellValue>
+
+  constructor(id: RowID, rowDef: Map<ColumnID, CellValue>){
+    this.id = id
+    this.cellValues = new Map()
+    for (const [columnId, cellVal] of rowDef) {
+      this.cellValues.set(columnId.value, cellVal)
+    }
+  }
+
+  cellValue(columnId: ColumnID): CellValue | null {
+    return this.cellValues.get(columnId.value) ?? null
+  }
 }
 
 class DummyTable {
@@ -74,17 +73,6 @@ class DummyTable {
         this.rows = rows
     }
 }
-
-class DummyRow {
-    id: RowID
-    cells: Map<ColumnID, CellValue>
-
-    constructor(id: RowID, cells: Map<ColumnID, CellValue>) {
-        this.id = id
-        this.cells = cells
-    }
-}
-
 
 export class DummyRepo implements DobbyRepo {
     bases: Map<BaseID, DummyBase>
@@ -146,7 +134,16 @@ export class DummyRepo implements DobbyRepo {
         if (row == null) {
             throw new Error("No such row " + rowId)
         }
-        row.cells = newValues
+        const newColumnIds: Set<string> = new Set()
+        for (const [columnId, value] of newValues) {
+          row.cellValues[columnId.value] = value
+          newColumnIds.add(columnId.value)
+        }
+        for (const rawColumnId in row.cellValues.keys()) {
+          if (!newColumnIds.has(rawColumnId)) {
+            row.cellValues.delete(rawColumnId)
+          }
+        }
         return
     }
     public async deleteRow(baseId: BaseID, tableId: TableID, rowId: RowID): Promise<void> {

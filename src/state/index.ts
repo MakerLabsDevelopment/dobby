@@ -4,7 +4,7 @@ import { PrivateKey, Client, ThreadID } from '@textile/hub'
 import type { DobbyRepo, Base, Row} from '../model'
 import { equalIds } from '../model'
 import * as dummy from '../model/dummy'
-import {newColumnId, BaseID, Table, TableID} from '../model/model'
+import {newColumnId, BaseID, Table, TableID } from '../model/model'
 
 const collectionSchema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
@@ -67,7 +67,16 @@ const dobbyRepo: RecoilState<DobbyRepo> = atom({
                         }
                     ],
                     name: "table1",
-                    rows: [],
+                    rows: [
+                      {
+                        "col1": {type: "string", value: "row1id"},
+                        "col2": {type: "number", value: 10},
+                      },
+                      {
+                        "col1": {type: "string", value: "row2id"},
+                        "col2": {type: "number", value: 20},
+                      }
+                    ],
                 }
             }
         },

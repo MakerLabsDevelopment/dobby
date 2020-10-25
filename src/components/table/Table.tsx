@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useEffect, useState, useMemo, useRef } from 'react'
+import React, { useMemo } from 'react'
 import matchSorter from 'match-sorter'
 import { connect } from 'redux-bundler-react'
 import {
@@ -11,9 +11,10 @@ import {
   useGroupBy,
   useRowSelect,
   useBlockLayout,
-  useResizeColumns,
   TableInstance,
+  FilterTypes,
 } from 'react-table'
+import type {Row as ReactTableRow, Column as ReactTableColumn } from "react-table"
 import GlobalFilter from './GlobalFilter'
 import { IndeterminateCheckbox } from './Checkbox'
 import TableActionsBar from './TableActionsBar'
@@ -22,117 +23,64 @@ import TableBody from './TableBody'
 import Pagination from './Pagination'
 import EditableCell from './EditableCell'
 import styles from './Table.module.css'
-import type { Table as ModelTable } from '../../model'
-
-type Data = object
+import type { Table as ModelTable, Row, ColumnID } from '../../model'
 
 interface TableProps {
-  collectionsActive: any
-  collectionsData: any
-  doCollectionsUpdateSave: (name: string, data: any) => any
   table: ModelTable,
   tableRows: Row[],
   routeParams: any
 }
 
 const Table = ({
-  collectionsActive,
-  collectionsData,
-  doCollectionsUpdateSave,
   table,
   tableRows,
   routeParams,
 }: TableProps) => {
   const name = routeParams.collectionName
-  const columns = table.columns.map(c => {
+  const columns: Array<ReactTableColumn> = table.columns.map(c => {
     let colType = null
+    let filter = null
     // TODO These types should be an enum somewhere
     if (c.type === "string") {
       colType = "single_line_text"
+      filter = "fuzzy"
     } else if (c.type === "number") {
       colType = "number"
+      filter = "exact"
     }
     return {
       Header: c.description,
-      accessor: (r: Row) => r.values.get(c.id),
+      id: c.id.value,
+      accessor: (r: Row): string => {
+        const cellVal = r.cellValue(c.id)
+        if (cellVal == null) {
+          return ""
+        }
+        if (cellVal.type === "number") {
+          return cellVal.value.toFixed(2)
+        } else if (cellVal.type === "string") {
+          return cellVal.value
+        }
+      },
       type: colType,
-      filter: "fuzzyText",
+      filter,
     }
   })
   //const [data, setData] = useState(tableRows)
   const setData = () => "noop"
-  const [skipPageReset, setSkipPageReset] = useState(false)
-  const skipResetRef = useRef(false)
-  const skipReset = skipResetRef.current
 
   const setColumns = () => console.log("setting columns")
 
-  useEffect(() => {
-    if (collectionsData) {
-      setData(collectionsData)
-    } else {
-      // doCollectionsFetchData(name)
+
+  const filterTypes: FilterTypes<Row> = useMemo(() => {
+    const fuzzyTextFilterFn: FilterType<Row> = (rows: Array<ReactTableRow<Row>>, columnIds: Array<ColumnID>, filterValue: string): Array<ReactTableRow<Row>> => {
+        return matchSorter(rows, filterValue, { keys: [row => columnIds.map(c => row[c])]})
     }
-  }, [name, collectionsActive, collectionsData])
-
-  useEffect(() => {
-    if (data.length > 1) {
-      doCollectionsUpdateSave(name, data)
+    fuzzyTextFilterFn.autoRemove = (val: any) => !val
+    return {
+        fuzzyText: fuzzyTextFilterFn,
     }
-  }, [data])
-
-  const updateMyData = async (
-    rowIndex: number,
-    columnId: string,
-    value: any,
-  ) => {
-    setSkipPageReset(true)
-    setData((old: any) =>
-      old.map((row: any, index: number) => {
-        if (index === rowIndex) {
-          return {
-            ...old[rowIndex],
-            [columnId]: value,
-          }
-        }
-        return row
-      }),
-    )
-  }
-
-  const fuzzyTextFilterFn = (rows: any, id: string, filterValue: string) => {
-    return matchSorter(rows, filterValue, { keys: [row => row.values[id]] })
-  }
-
-  fuzzyTextFilterFn.autoRemove = val => !val
-
-  const filterTypes = useMemo(
-    () => ({
-      fuzzyText: fuzzyTextFilterFn,
-      text: (rows, id, filterValue) => {
-        return rows.filter((row) => {
-          const rowValue = row.values[id]
-          return rowValue !== undefined
-            ? String(rowValue)
-                .toLowerCase()
-                .startsWith(String(filterValue).toLowerCase())
-            : true
-        })
-      },
-    }),
-    [],
-  )
-
-  const defaultColumn = useMemo(
-    () => ({
-      Filter: GlobalFilter,
-      Cell: EditableCell,
-      minWidth: 30,
-      width: 150,
-      maxWidth: 400,
-    }),
-    [],
-  )
+  }, [])
 
   const {
     getTableProps,
@@ -155,18 +103,15 @@ const Table = ({
     },
     preGlobalFilteredRows,
     setGlobalFilter,
-  } = useTable<Data>(
+  } = useTable<Row>(
     {
       columns,
-      data,
+      data: tableRows,
       defaultColumn,
       filterTypes,
       initialState: { pageSize: 30 },
-      autoResetPage: !skipPageReset,
-      updateMyData,
-      autoResetPage: !skipReset,
-      autoResetSelectedRows: !skipReset,
       disableMultiSort: true,
+      autoResetHiddenColumns: false,
     },
     useFilters,
     useGlobalFilter,
@@ -175,7 +120,6 @@ const Table = ({
     usePagination,
     useRowSelect,
     useBlockLayout,
-    useResizeColumns,
     hooks => {
       hooks.allColumns.push(columns => {
         return [
@@ -206,8 +150,7 @@ const Table = ({
         selectionGroupHeader.canResize = false
       })
     }
-  ) as TableInstance<object>
-  useEffect(() => { setSkipPageReset(false) }, [data])
+  ) as TableInstance<Row>
   return (
     <>
       <div className={styles.tableContainer} {...getTableProps()}>
@@ -223,7 +166,6 @@ const Table = ({
           setColumns={setColumns}
         />
         <TableBody
-          data={tableRows}
           getTableBodyProps={getTableBodyProps}
           page={page}
           prepareRow={prepareRow}
@@ -238,7 +180,6 @@ const Table = ({
         gotoPage={gotoPage}
         previousPage={previousPage}
         nextPage={nextPage}
-        gotoPage={gotoPage}
         setPageSize={setPageSize}
         pageIndex={pageIndex}
         pageSize={pageSize}
@@ -246,6 +187,16 @@ const Table = ({
     </>
   )
 }
+
+const defaultColumn = {
+    Filter: GlobalFilter,
+    Cell: EditableCell,
+    minWidth: 30,
+    width: 150,
+    maxWidth: 400,
+}
+
+
 
 export default connect(
   'doCollectionsAddColumn',

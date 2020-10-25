@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react'
-import clsx from 'clsx'
 import styles from './ColumnOptionsMenu.module.css'
 
 const menuTypes = [

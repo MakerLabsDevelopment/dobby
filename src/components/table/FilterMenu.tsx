@@ -19,7 +19,7 @@ const FilterMenu = ({
 
   useEffect(() => {
     setColumnId(headerGroups[0].headers[0].id)
-  }, [])
+  }, [headerGroups])
 
   const useOutsideAlerter = (ref: any) => {
     useEffect(() => {
