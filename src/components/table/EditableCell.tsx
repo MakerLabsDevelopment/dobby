@@ -4,17 +4,17 @@ interface EditableCellProps {
   value: any,
   row: any,
   column: any,
-  updateMyData: any
 }
 
 const EditableCell = ({
   value: initialValue,
   row: { index },
   column: { id, type },
-  updateMyData,
 }: EditableCellProps) => {
   // console.log(type, 'type')
   const [value, setValue] = useState(initialValue)
+
+  const updateMyData = (index, id, value) => console.log("updating")
 
   const onChange = (e: any) => {
     setValue(e.target.value)

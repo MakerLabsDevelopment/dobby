@@ -1,7 +1,6 @@
 // @ts-nocheck
 import React, { useMemo } from 'react'
 import matchSorter from 'match-sorter'
-import { connect } from 'redux-bundler-react'
 import {
   useTable,
   usePagination,
@@ -28,15 +27,12 @@ import type { Table as ModelTable, Row, ColumnID } from '../../model'
 interface TableProps {
   table: ModelTable,
   tableRows: Row[],
-  routeParams: any
 }
 
 const Table = ({
   table,
   tableRows,
-  routeParams,
 }: TableProps) => {
-  const name = routeParams.collectionName
   const columns: Array<ReactTableColumn> = table.columns.map(c => {
     let colType = null
     let filter = null
@@ -162,7 +158,7 @@ const Table = ({
         />
         <TableHead
           headerGroups={headerGroups}
-          name={name}
+          name={table.name}
           setColumns={setColumns}
         />
         <TableBody
@@ -196,16 +192,4 @@ const defaultColumn = {
     maxWidth: 400,
 }
 
-
-
-export default connect(
-  'doCollectionsAddColumn',
-  'doCollectionsAddRow',
-  'doCollectionsDeleteRow',
-  'doCollectionsFetchData',
-  'doCollectionsUpdateSave',
-  'selectCollectionsActive',
-  'selectCollectionsData',
-  'selectRouteParams',
-  Table,
-)
+export default Table
