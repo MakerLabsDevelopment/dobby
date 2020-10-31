@@ -1,4 +1,4 @@
-import {BaseID, TableID, ColumnID, RowID, Base, Table, Column, Row, CellValue, DobbyRepo, newTableId, newRowId, newBaseId, equalIds, newColumnId} from "./model"
+import {BaseID, TableID, ColumnID, RowID, Base, Table, Column, Row, CellValue, DobbyRepo, newTableId, newRowId, newBaseId, equalIds, newColumnId, RepoListener, ListenerID, newListenerId} from "./model"
 import * as uuid from "uuid"
 
 
@@ -18,7 +18,7 @@ interface DummyBaseData {
 class DummyBase {
     id: BaseID
     name: string
-    tables: DummyTable[]
+    tables: Array<DummyTable>
 
     constructor(id: BaseID, baseData: DummyBaseData){
         this.id = id
@@ -27,7 +27,7 @@ class DummyBase {
         for (const tableName in baseData.tables) {
             const tableData = baseData.tables[tableName]
             const tableId = newTableId(tableData.id)
-            this.tables.push(new DummyTable(
+            const table = new DummyTable(
                 tableId,
                 tableData.name,
                 tableData.columns,
@@ -38,7 +38,8 @@ class DummyBase {
                   }
                   return new DummyRow(newRowId(uuid.v4().toString()), vals)
                 }),
-            ))
+            )
+            this.tables.push(table)
         }
     }
 }
@@ -64,7 +65,7 @@ class DummyTable {
     id: TableID
     name: string
     columns: Array<Column>
-    rows: DummyRow[]
+    rows: Array<DummyRow>
 
     constructor(id: TableID, name: string, columns: Array<Column>, rows: DummyRow[]) {
         this.id = id
@@ -76,9 +77,11 @@ class DummyTable {
 
 export class DummyRepo implements DobbyRepo {
     bases: Map<BaseID, DummyBase>
+    listeners: Map<string, RepoListener>
 
     constructor(bases: Map<BaseID, DummyBase>) {
         this.bases = bases
+        this.listeners = new Map()
     }
 
     public async listBases(): Promise<Base[]> {
@@ -93,7 +96,7 @@ export class DummyRepo implements DobbyRepo {
         if (table == null) {
             throw new Error("No such table")
         }
-        return table.rows
+        return [...table.rows]
     }
     public async createTable(baseId: BaseID, name: string, columns: Array<Column>): Promise<Table> {
         const base = this.bases.get(baseId)
@@ -103,9 +106,10 @@ export class DummyRepo implements DobbyRepo {
         const id = uuid.v4()
         const table = new DummyTable(newTableId(id.toString()), name, columns, [])
         base.tables.push(table)
+        this.notifyListeners()
         return table
     }
-    public async insertRow(baseId: BaseID, tableId: TableID, values: Map<ColumnID, CellValue>): Promise<Row> {
+    public async insertRow(baseId: BaseID, tableId: TableID, index: (number | null), values: Map<ColumnID, CellValue>): Promise<Row> {
         const base = this.bases.get(baseId)
         if (base == null) {
             throw new Error("No such base " + baseId.value)
@@ -116,7 +120,12 @@ export class DummyRepo implements DobbyRepo {
         }
         const rowId = newRowId(uuid.v4().toString())
         const row = new DummyRow(rowId, values)
-        table.rows.push(row)
+        if (index == null) {
+          table.rows.push(row)
+        } else {
+          table.rows.splice(index, 0, row)
+        }
+        this.notifyListeners()
         return row
     }
     public async updateRow(baseId: BaseID, tableId: TableID, rowId: RowID, newValues: Map<ColumnID, CellValue>): Promise<void> {
@@ -144,6 +153,7 @@ export class DummyRepo implements DobbyRepo {
             row.cellValues.delete(rawColumnId)
           }
         }
+        this.notifyListeners()
         return
     }
     public async deleteRow(baseId: BaseID, tableId: TableID, rowId: RowID): Promise<void> {
@@ -162,7 +172,24 @@ export class DummyRepo implements DobbyRepo {
         }
         const indexToRemove = table.rows.indexOf(row)
         table.rows.splice(indexToRemove, 1)
+        this.notifyListeners()
         return
+    }
+
+    public addListener(listener: RepoListener): ListenerID {
+        const id = newListenerId(uuid.v4().toString())
+        this.listeners.set(id.value, listener)
+        return id
+    }
+
+    public removeListener(listenerId: ListenerID): void {
+        this.listeners.delete(listenerId.value)
+    }
+
+    private notifyListeners(): void {
+        for (const listener of this.listeners.values()) {
+            listener()
+        }
     }
 }
 

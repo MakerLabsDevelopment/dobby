@@ -6,14 +6,16 @@ import { Tables } from '../components/Tables'
 import { RootPage } from '../components/RootPage'
 import Table from '../components/table/Table'
 import {
+  activeBase,
   activeBaseId,
   activeTableId,
   activeTable,
   activeTableRows,
+  dobbyRepoWrapper
 } from '../state'
 
 import styles from './BasePage.module.css'
-import { newBaseId, newTableId } from '../model/model'
+import { newBaseId, newTableId, ColumnID, CellValue } from '../model/model'
 
 interface IBasePage {
   routeParams: any
@@ -55,13 +57,22 @@ const BasePageComponent = ({
 }
 
 const CurrentTable = () => {
+  const theActiveBase = useRecoilValue(activeBase)
   const activeTableVal = useRecoilValue(activeTable)
   const activeTableRowsVal = useRecoilValue(activeTableRows)
+  const repo = useRecoilValue(dobbyRepoWrapper).repo
+  if (theActiveBase == null) {
+    return <p>Base does not exist</p>
+  }
   if (activeTableVal == null) {
     return <p>"No tables in this base yet"</p>
   }
 
-  return <Table table={activeTableVal} tableRows={activeTableRowsVal}/>
+  const insertRow = async (index: number, values: Map<ColumnID, CellValue>): Promise<void> => {
+      await repo.insertRow(theActiveBase.id, activeTableVal.id, index, values)
+  }
+
+  return <Table table={activeTableVal} tableRows={activeTableRowsVal} insertRow={insertRow} />
 }
 
 const BasePage = connect(

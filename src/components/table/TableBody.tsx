@@ -10,8 +10,7 @@ interface TableBodyProps {
   page: ReactTableRow<Row>[]
   getTableBodyProps: () => any
   prepareRow: (row: ReactTableRow<Row>) => any
-  setData: (data: Object[]) => any
-  addEmptyRow: (index?: number) => void
+  addEmptyRow: (index?: number) => Promise<void>
 }
 
 const TableBody = ({

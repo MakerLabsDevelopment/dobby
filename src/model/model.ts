@@ -13,11 +13,13 @@ export type BaseID = Id<'base'>
 export type TableID = Id<'table'>
 export type ColumnID = Id<'column'>
 export type RowID = Id<'row'>
+export type ListenerID = Id<'listener'>
 
 export const newBaseId = (value: string): BaseID => ({type: "base", value})
 export const newTableId = (value: string): TableID => ({type: "table", value})
 export const newColumnId = (value: string): ColumnID => ({type: "column", value})
 export const newRowId = (value: string): RowID => ({type: "row", value})
+export const newListenerId = (value: string): ListenerID => ({type: "listener", value})
 
 export interface Base {
     id: BaseID,
@@ -57,11 +59,17 @@ export interface Row {
     cellValue(columnId: ColumnID): CellValue | null
 }
 
+export interface RepoListener {
+  (): void;
+}
+
 export interface DobbyRepo {
     listBases(): Promise<Base[]>,
     createTable(baseId: BaseID, name: string, columns: Array<Column>): Promise<Table>,
     rowsForTable(baseId: BaseID, tableId: TableID): Promise<Row[] | null>,
-    insertRow(baseId: BaseID, tableId: TableID, values: Map<ColumnID, CellValue>): Promise<Row>,
+    insertRow(baseId: BaseID, tableId: TableID, index: (number | null), values: Map<ColumnID, CellValue>): Promise<Row>,
     updateRow(baseId: BaseID, tableId: TableID, rowId: RowID, newValues: Map<ColumnID, CellValue>): Promise<void>,
     deleteRow(baseId: BaseID, tableId: TableID, rowId: RowID): Promise<void>,
+    addListener(listener: RepoListener): ListenerID
+    removeListener(listenerId: ListenerID): void
 }

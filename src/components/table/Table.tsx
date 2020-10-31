@@ -27,11 +27,13 @@ import type { Table as ModelTable, Row, ColumnID } from '../../model'
 interface TableProps {
   table: ModelTable,
   tableRows: Row[],
+  insertRow: (index: number, values: Map<ColumnID, CellValue>) => Promise<void>, 
 }
 
 const Table = ({
   table,
   tableRows,
+  insertRow,
 }: TableProps) => {
   const columns: Array<ReactTableColumn> = table.columns.map(c => {
     let colType = null
@@ -62,8 +64,6 @@ const Table = ({
       filter,
     }
   })
-  //const [data, setData] = useState(tableRows)
-  const setData = () => "noop"
 
   const setColumns = () => console.log("setting columns")
 
@@ -77,6 +77,25 @@ const Table = ({
         fuzzyText: fuzzyTextFilterFn,
     }
   }, [])
+
+  const addEmptyRow = async (index: number): Promise<void> => {
+      const values: Map<ColumnID, CellValue> = new Map()
+      for (const column of table.columns) {
+          if (column.type === "string") {
+              values.set(column.id, {
+                  type: "string",
+                  value: "",
+              })
+          } else {
+              values.set(column.id, {
+                  type: "number",
+                  value: 0,
+              })
+          }
+      }
+      await insertRow(index, values)
+      return
+  }
 
   const {
     getTableProps,
@@ -165,7 +184,7 @@ const Table = ({
           getTableBodyProps={getTableBodyProps}
           page={page}
           prepareRow={prepareRow}
-          setData={setData}
+          addEmptyRow={addEmptyRow}
         />
       </div>
       <Pagination

@@ -1,4 +1,4 @@
-import { atom, selector, RecoilValueReadOnly, AtomOptions, ReadOnlySelectorOptions } from 'recoil'
+import { atom, selector, RecoilValueReadOnly, AtomOptions, ReadOnlySelectorOptions, DefaultValue } from 'recoil'
 import type { RecoilState } from 'recoil'
 import { PrivateKey, Client, ThreadID } from '@textile/hub'
 import type { DobbyRepo, Base, Row} from '../model'
@@ -45,71 +45,96 @@ const clientQuerySelector = selector({
   },
 })
 
-const dobbyRepo: RecoilState<DobbyRepo> = atom({
-    key: "dobbyRepo",
-    default: dummy.newDummyRepo([
-        {
-            name: "Base 1",
-            id: "base1id",
-            tables: {
-                "table1": {
-                    id: "table1base1id",
-                    columns: [
-                        {
-                            id: newColumnId("col1"),
-                            description: "ID",
-                            type: 'string',
-                        },
-                        {
-                            id: newColumnId("col2"),
-                            description: "Number of dogs",
-                            type: 'number',
-                        }
-                    ],
-                    name: "table1",
-                    rows: [
-                      {
-                        "col1": {type: "string", value: "row1id"},
-                        "col2": {type: "number", value: 10},
-                      },
-                      {
-                        "col1": {type: "string", value: "row2id"},
-                        "col2": {type: "number", value: 20},
-                      }
-                    ],
-                }
-            }
-        },
-        {
-            name: "Base 2",
-            id: "base2id",
-            tables: {
-                "table1": {
-                    id: "table1base2id",
-                    columns: [
-                        {
-                            id: newColumnId("col1"),
-                            description: "ID",
-                            type: 'string',
-                        },
-                        {
-                            id: newColumnId("col2"),
-                            description: "Number of dogs",
-                            type: 'number',
-                        }
-                    ],
-                    name: "table1",
-                    rows: [],
-                }
+const repo = dummy.newDummyRepo([
+    {
+        name: "Base 1",
+        id: "base1id",
+        tables: {
+            "table1": {
+                id: "table1base1id",
+                columns: [
+                    {
+                        id: newColumnId("col1"),
+                        description: "ID",
+                        type: 'string',
+                    },
+                    {
+                        id: newColumnId("col2"),
+                        description: "Number of dogs",
+                        type: 'number',
+                    }
+                ],
+                name: "table1",
+                rows: [
+                  {
+                    "col1": {type: "string", value: "row1id"},
+                    "col2": {type: "number", value: 10},
+                  },
+                  {
+                    "col1": {type: "string", value: "row2id"},
+                    "col2": {type: "number", value: 20},
+                  }
+                ],
             }
         }
-    ])
+    },
+    {
+        name: "Base 2",
+        id: "base2id",
+        tables: {
+            "table1": {
+                id: "table1base2id",
+                columns: [
+                    {
+                        id: newColumnId("col1"),
+                        description: "ID",
+                        type: 'string',
+                    },
+                    {
+                        id: newColumnId("col2"),
+                        description: "Number of dogs",
+                        type: 'number',
+                    }
+                ],
+                name: "table1",
+                rows: [],
+            }
+        }
+    }
+])
+
+interface DobbyRepoWrapper {
+    repo: DobbyRepo,
+    version: number,
+}
+let wrapper = {
+    repo,
+    version: 1,
+}
+
+const dobbyRepoWrapper: RecoilState<DobbyRepoWrapper> = atom({
+    key: "dobbyRepoWrapper",
+    default: wrapper,
+    effects_UNSTABLE: [
+        ({setSelf, trigger}) => {
+            repo.addListener(() => {
+                wrapper = {
+                    version: wrapper.version + 1,
+                    repo,
+                }
+                setSelf(wrapper)
+            })
+            if (trigger === "get") {
+                setSelf(wrapper)
+            }
+        }
+    ]
 })
 
 const basesSelector: RecoilValueReadOnly<Base[]> = selector({
     key: 'bases',
     get: async ({ get }) => {
-        const repo = get(dobbyRepo)
+        const repo = get(dobbyRepoWrapper).repo
         return repo.listBases()
     },
 })
@@ -168,7 +193,7 @@ const baseOptions: ReadOnlySelectorOptions<Base | null> = {
         if (baseId == null) {
             return null
         }
-        const repo = get(dobbyRepo)
+        const repo = get(dobbyRepoWrapper).repo
         const bases = await repo.listBases()
         const base = bases.find(b => equalIds(b.id, baseId))
         if (base != null) {
@@ -176,6 +201,7 @@ const baseOptions: ReadOnlySelectorOptions<Base | null> = {
         }
         return null
     },
+    dangerouslyAllowMutability: true,
 }
 const activeBase: RecoilValueReadOnly<Base | null> = selector(baseOptions)
 
@@ -188,6 +214,7 @@ const tablesSelector: RecoilValueReadOnly<Table[]> = selector({
         }
         return base.tables
     },
+    dangerouslyAllowMutability: true,
 })
 
 const activeTableIdOptions: AtomOptions<TableID | null> = {
@@ -217,6 +244,7 @@ const activeTableOptions: ReadOnlySelectorOptions<Table | null> = {
         }
         return table
     },
+    dangerouslyAllowMutability: true,
 }
 const activeTable: RecoilValueReadOnly<Table | null> = selector(activeTableOptions)
 
@@ -231,14 +259,15 @@ const activeTableRows: RecoilValueReadOnly<Row[]> = selector({
         if (activeTableVal == null) {
             return []
         }
-        const repo = get(dobbyRepo)
+        const repo = get(dobbyRepoWrapper).repo
         const rows = await repo.rowsForTable(activeBaseVal.id, activeTableVal.id)
         if (rows == null) {
             return []
         } else {
             return rows
         }
-    }
+    },
+    dangerouslyAllowMutability: true,
 })
 
 export {
@@ -248,10 +277,12 @@ export {
   threadActiveIdState,
   threadsQuerySelector,
   collectionSchema,
+  activeBase,
   activeBaseId,
   basesSelector,
   tablesSelector,
   activeTableId,
   activeTable,
-  activeTableRows
+  activeTableRows,
+  dobbyRepoWrapper,
 }
