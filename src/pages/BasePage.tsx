@@ -11,7 +11,7 @@ import {
   activeTableId,
   activeTable,
   activeTableRows,
-  dobbyRepoWrapper
+  dobbyRepoWrapper,
 } from '../state'
 
 import styles from './BasePage.module.css'
@@ -21,9 +21,7 @@ interface IBasePage {
   routeParams: any
 }
 
-const BasePageComponent = ({
-  routeParams: { baseId, tableId },
-}: IBasePage) => {
+const BasePageComponent = ({ routeParams: { baseId, tableId } }: IBasePage) => {
   const setActiveBaseId = useSetRecoilState(activeBaseId)
   useEffect(() => {
     setActiveBaseId(newBaseId(baseId))
@@ -35,9 +33,8 @@ const BasePageComponent = ({
     setActiveTableId(id)
   }, [tableId, setActiveTableId])
 
-
   //TODO implement in terms of DobbyRepo
-  const collectionCreate = () => console.log("create!")
+  const collectionCreate = () => console.log('create!')
 
   return (
     <RootPage>
@@ -68,16 +65,22 @@ const CurrentTable = () => {
     return <p>"No tables in this base yet"</p>
   }
 
-  const insertRow = async (index: number, values: Map<ColumnID, CellValue>): Promise<void> => {
-      await repo.insertRow(theActiveBase.id, activeTableVal.id, index, values)
+  const insertRow = async (
+    index: number,
+    values: Map<ColumnID, CellValue>,
+  ): Promise<void> => {
+    await repo.insertRow(theActiveBase.id, activeTableVal.id, index, values)
   }
 
-  return <Table table={activeTableVal} tableRows={activeTableRowsVal} insertRow={insertRow} />
+  return (
+    <Table
+      table={activeTableVal}
+      tableRows={activeTableRowsVal}
+      insertRow={insertRow}
+    />
+  )
 }
 
-const BasePage = connect(
-  'selectRouteParams',
-  BasePageComponent,
-)
+const BasePage = connect('selectRouteParams', BasePageComponent)
 
 export { BasePage }
