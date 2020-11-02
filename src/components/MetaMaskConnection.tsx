@@ -14,6 +14,9 @@ const MetaMaskConnection = (): ReactElement => {
 
   const [provider, setProvider] = useState<any>(() => null)
   useEffect(() => {
+    if (!onboarding.current) {
+      onboarding.current = new MetaMaskOnboarding()
+    }
     const init = async () => {
       const ethProvider = await detectEthereumProvider()
       if (ethProvider) {
@@ -21,12 +24,6 @@ const MetaMaskConnection = (): ReactElement => {
       }
     }
     init()
-  }, [])
-
-  useEffect(() => {
-    if (!onboarding.current) {
-      onboarding.current = new MetaMaskOnboarding()
-    }
   }, [])
 
   useEffect(() => {
@@ -55,13 +52,14 @@ const MetaMaskConnection = (): ReactElement => {
         provider.off('accountsChanged', handleNewAccounts)
       }
     }
-  }, [provider])
+  }, [])
 
-  const onClick = () => {
+  const onClick = async () => {
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
-      provider
-        .request({ method: 'eth_requestAccounts' })
-        .then((newAccounts) => setAccounts(newAccounts))
+      const newAccounts = await provider.request({
+        method: 'eth_requestAccounts',
+      })
+      setAccounts(newAccounts)
     } else {
       onboarding.current?.startOnboarding()
     }
