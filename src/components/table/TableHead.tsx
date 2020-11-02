@@ -5,9 +5,11 @@ import styles from './TableHead.module.css'
 interface TableHeadProps {
   headerGroups: []
   setColumns: (old: any) => any
+  addColumn: (index?: number) => any
+  renameColumn: (columnId: any, description: string) => any
 }
 
-const TableHead = ({ headerGroups, setColumns }: TableHeadProps) => {
+const TableHead = ({ headerGroups, addColumn, renameColumn, setColumns }: TableHeadProps) => {
   const [columnId, setColumnId] = useState('')
   const [showColumnOptionsMenu, setShowColumnOptionsMenu] = useState(false)
 
@@ -15,22 +17,6 @@ const TableHead = ({ headerGroups, setColumns }: TableHeadProps) => {
     e.preventDefault()
     setColumnId(columnId)
     setShowColumnOptionsMenu(true)
-  }
-
-  const addColumn = async (direction: string, columnId?: string) => {
-    const newColData = { Header: 'Field', accessor: 'field' + Math.random(), type: 'single_line_text' }
-    setColumns((old: any) =>
-      old.map((row: any) => {
-        const colIdIndex = columnId ? row.columns.findIndex(
-          (col: any) => col.accessor === columnId
-        ) : null
-        const insertIndex = direction === 'left' ? colIdIndex : colIdIndex + 1
-        const index = insertIndex || row.columns.length
-        row.columns.splice(index, 0, newColData)
-        return row
-      })
-    )
-    // doCollectionsAddColumn(name, 'string')
   }
 
   return (
@@ -64,7 +50,9 @@ const TableHead = ({ headerGroups, setColumns }: TableHeadProps) => {
                     addColumn={addColumn}
                     columnId={columnId}
                     column={column}
+                    headers={headerGroup.headers}
                     onClose={() => setShowColumnOptionsMenu(false)}
+                    renameColumn={renameColumn}
                     setColumns={setColumns}
                   />
                 )}
@@ -75,7 +63,7 @@ const TableHead = ({ headerGroups, setColumns }: TableHeadProps) => {
       </div>
       <button
         className={styles.addColumnButton}
-        onClick={() => addColumn('left')}
+        onClick={() => addColumn()}
       >
         add column
       </button>

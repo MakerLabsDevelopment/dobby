@@ -27,13 +27,17 @@ import type { Table as ModelTable, Row, ColumnID } from '../../model'
 interface TableProps {
   table: ModelTable,
   tableRows: Row[],
-  insertRow: (index: number, values: Map<ColumnID, CellValue>) => Promise<void>, 
+  insertRow: (index: number, values: Map<ColumnID, CellValue>) => Promise<void>,
+  insertColumn: (index: (number | null)) => Promise<void>,
+  updateColumn: (columnId: ColumnID, description: string) => Promise<void>
 }
 
 const Table = ({
   table,
   tableRows,
   insertRow,
+  insertColumn,
+  updateColumn
 }: TableProps) => {
   const columns: Array<ReactTableColumn> = table.columns.map(c => {
     let colType = null
@@ -95,6 +99,16 @@ const Table = ({
       }
       await insertRow(index, values)
       return
+  }
+
+  const addColumn = async (index: (number | null)): Promise<void> => {
+      await insertColumn(index)
+      return
+  }
+
+  const renameColumn = async (columnId: ColumnID, description: string): Promise<void> => {
+    await updateColumn(columnId, description)
+    return
   }
 
   const {
@@ -178,6 +192,8 @@ const Table = ({
         <TableHead
           headerGroups={headerGroups}
           name={table.name}
+          addColumn={addColumn}
+          renameColumn={renameColumn}
           setColumns={setColumns}
         />
         <TableBody

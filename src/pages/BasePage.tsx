@@ -72,7 +72,23 @@ const CurrentTable = () => {
       await repo.insertRow(theActiveBase.id, activeTableVal.id, index, values)
   }
 
-  return <Table table={activeTableVal} tableRows={activeTableRowsVal} insertRow={insertRow} />
+  const insertColumn = async (index: (number | null)): Promise<void> => {
+      await repo.insertColumn(theActiveBase.id, activeTableVal.id, index)
+  }
+
+  const updateColumn = async (columnId: ColumnID, description: string): Promise<void> => {
+      await repo.updateColumn(theActiveBase.id, activeTableVal.id, columnId, description, null)
+  }
+
+  return (
+    <Table
+      table={activeTableVal}
+      tableRows={activeTableRowsVal}
+      insertRow={insertRow}
+      insertColumn={insertColumn}
+      updateColumn={updateColumn}
+    />
+  )
 }
 
 const BasePage = connect(

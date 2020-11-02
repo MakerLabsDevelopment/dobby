@@ -33,10 +33,12 @@ const menuTypes = [
 ]
 
 type ColumnOptionsMenuProps = {
-  addColumn: (columnId: string, direction: string) => any
+  addColumn: (index?: number) => any
   column: any,
   columnId: any,
+  headers: [],
   onClose: () => any,
+  renameColumn: (columnId: any, description: string) => any
   setColumns: (old: object) => any,
 }
 
@@ -44,7 +46,9 @@ const ColumnOptionsMenu = ({
   addColumn,
   column,
   columnId,
+  headers,
   onClose,
+  renameColumn,
   setColumns,
 }: ColumnOptionsMenuProps) => {
   const [dropDown, setDropDown] = useState('options')
@@ -66,20 +70,6 @@ const ColumnOptionsMenu = ({
   }
   const wrapperRef = useRef(null)
   useOutsideAlerter(wrapperRef)
-
-  const renameColumn = async (columnId: string, newName: string) => {
-    setColumns(old =>
-      old.map((row) => {
-        for (var i in row.columns) {
-          if (row.columns[i].accessor === columnId) {
-            row.columns[i].Header = newName
-            break
-          }
-        }
-        return row
-      })
-    )
-  }
 
   const changeColumnType = async (columnId: string, type: string) => {
     setColumns(old =>
@@ -105,16 +95,13 @@ const ColumnOptionsMenu = ({
     )
   }
 
-  const sortColumnDesc = () => {
+  const sortColumn = (direction: ('asc' | 'desc')) => {
+    //TODO: insert desction check and sort accordingly
     !column.isSorted ? column.toggleSortBy(true) : column.clearSortBy()
     onClose()
   }
 
-  const sortColumnAsc = () => {
-    !column.isSorted ? column.toggleSortBy(false) : column.clearSortBy()
-    onClose()
-  }
-
+  const colIndex = headers.findIndex((col: any) => col?.id === columnId)
 
   return (
     <div
@@ -125,10 +112,10 @@ const ColumnOptionsMenu = ({
         <div>
           <div className={styles.menuItem} onClick={() => setDropDown('select_type')}>customise type</div>
           <div className={styles.menuItem} onClick={() => setDropDown('rename')}>rename</div>
-          <div className={styles.menuItem} onClick={() => addColumn('left', columnId)}>insert left</div>
-          <div className={styles.menuItem} onClick={() => addColumn('right', columnId)}>insert right</div>
-          <div className={styles.menuItem} onClick={() => sortColumnDesc()}>sort A-Z</div>
-          <div className={styles.menuItem} onClick={() => sortColumnAsc()}>sort Z-A</div>
+          <div className={styles.menuItem} onClick={() => addColumn(colIndex)}>insert left</div>
+          <div className={styles.menuItem} onClick={() => addColumn(colIndex + 1)}>insert right</div>
+          <div className={styles.menuItem} onClick={() => sortColumn('desc')}>sort A-Z</div>
+          <div className={styles.menuItem} onClick={() => sortColumn('asc')}>sort Z-A</div>
           <div className={styles.menuItem}>add filter</div>
           <div className={styles.menuItem}>group by field</div>
           <div className={styles.menuItem} onClick={() => removeColumn(columnId)}>delete column</div>
