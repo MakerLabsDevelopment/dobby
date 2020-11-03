@@ -36,7 +36,6 @@ const TableBody = ({
     <div {...getTableBodyProps()} className={styles.tableBody}>
       {page.map((row) => {
         prepareRow(row)
-        console.log(row, 'ROWSS')
         return (
           <div
             {...row.getRowProps()}

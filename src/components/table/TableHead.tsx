@@ -34,7 +34,7 @@ const TableHead = ({ changeColumnType, headerGroups, addColumn, removeColumn, re
                 <div>
                   {column.canGroupBy ? (
                     <span {...column.getGroupByToggleProps()}>
-                      {column.isGrouped ? '🛑 ' : '👊 '}
+                      {column.isGrouped && '👊 '}
                     </span>
                   ) : null}
                   <span>

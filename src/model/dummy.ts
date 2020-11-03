@@ -137,8 +137,9 @@ export class DummyRepo implements DobbyRepo {
       tableId: TableID,
       columnId: ColumnID,
       description: (string | null),
-      type: ("string" | "number" | null)
+      type: ("string" | "number" | "long_text" | "checkbox" | "single_select" | null)
     ): Promise<void> {
+        console.log('SSS', type)
         const base = this.bases.get(baseId)
         if (base == null) {
             throw new Error("No such base " + baseId)

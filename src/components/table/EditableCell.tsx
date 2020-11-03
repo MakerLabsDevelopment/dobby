@@ -1,4 +1,7 @@
 import React, { useState } from 'react'
+import TextAreaCell from './cells/TextAreaCell'
+import SingleSelectCell from './cells/SingleSelectCell'
+import styles from './EditableCell.module.css'
 
 interface EditableCellProps {
   value: any,
@@ -13,7 +16,6 @@ const EditableCell = ({
   column: { id, type },
   updateMyData,
 }: EditableCellProps) => {
-  // console.log(type, 'type')
   const [value, setValue] = useState(initialValue)
 
   const onChange = (e: any) => {
@@ -25,11 +27,25 @@ const EditableCell = ({
   }
 
   if (type === 'single_line_text') {
-    return (<input type='text' value={value} onChange={onChange} onBlur={onBlur} />)
+    return (
+      <input
+        className={styles.input}
+        type='text'
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+      />
+    )
   }
 
   if (type === 'long_text') {
-    return (<textarea value={value} onChange={onChange} onBlur={onBlur} />)
+    return (
+      <TextAreaCell
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+      />
+    )
   }
 
   if (type === 'attachments') {
@@ -44,12 +60,19 @@ const EditableCell = ({
   }
 
   if (type === 'checkbox') {
-    return (<input type='checkbox' value={value} onChange={onChange} onBlur={onBlur} />)
+    return (
+      <input
+        type='checkbox'
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+      />
+    )
   }
 
   if (type === 'multiselect') {
     return (
-      <select value={[]} onChange={onChange}>
+      <select value={value} onChange={onChange}>
         <option value="grapefruit">Grapefruit</option>
         <option value="lime">Lime</option>
         <option value="coconut">Coconut</option>
@@ -59,13 +82,11 @@ const EditableCell = ({
   }
 
   if (type === 'single_select') {
+    console.log(value, 'VALUE')
     return (
-      <select value={value} onChange={onChange}>
-        <option value="grapefruit">Grapefruit</option>
-        <option value="lime">Lime</option>
-        <option value="coconut">Coconut</option>
-        <option value="mango">Mango</option>
-      </select>
+      <SingleSelectCell
+        value={value}
+      />
     )
   }
 
@@ -86,7 +107,15 @@ const EditableCell = ({
   }
 
   if (type === 'number') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (
+      <input
+        className={styles.input}
+        type={type}
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+      />
+    )
   }
 
   if (type === 'currency') {

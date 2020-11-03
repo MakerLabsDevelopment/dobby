@@ -36,12 +36,12 @@ export interface Table {
 export interface Column {
     id: ColumnID,
     description: string,
-    type: "string" | "number"
+    type: "string" | "number" | "long_text" | "checkbox" | "single_select"
 }
 
 // The union of all possible cell values, will be expanded to include things
 // like relationships, or formulae
-export type CellValue = StringCellValue | NumericCellValue
+export type CellValue = StringCellValue | NumericCellValue | LongTextCellValue | CheckboxCellValue | SingleSelectCellValue
 
 export type StringCellValue = {
     type: "string",
@@ -53,6 +53,20 @@ export type NumericCellValue = {
     value: number,
 }
 
+export type LongTextCellValue = {
+    type: "long_text",
+    value: string,
+}
+
+export type CheckboxCellValue = {
+    type: "checkbox",
+    value: boolean,
+}
+
+export type SingleSelectCellValue = {
+    type: "single_select",
+    value: any[],
+}
 
 export interface Row {
     id: RowID,
@@ -68,7 +82,13 @@ export interface DobbyRepo {
     createTable(baseId: BaseID, name: string, columns: Array<Column>): Promise<Table>,
     rowsForTable(baseId: BaseID, tableId: TableID): Promise<Row[] | null>,
     insertColumn(baseId: BaseID, tableId: TableID, index: (number | null)): Promise<Column>,
-    updateColumn(baseId: BaseID, tableId: TableID, columnId: ColumnID, description: (string | null), type: ("string" | "number" | null)): Promise<void>,
+    updateColumn(
+      baseId: BaseID,
+      tableId: TableID,
+      columnId: ColumnID,
+      description: (string | null),
+      type: ("string" | "number" | "long_text" | "checkbox" | "single_select" | null)
+    ): Promise<void>,
     deleteColumn(baseId: BaseID, tableId: TableID, rowId: ColumnID): Promise<void>,
     insertRow(baseId: BaseID, tableId: TableID, index: (number | null), values: Map<ColumnID, CellValue>): Promise<Row>,
     updateRow(baseId: BaseID, tableId: TableID, rowId: RowID, newValues: Map<ColumnID, CellValue>): Promise<void>,

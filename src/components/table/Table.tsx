@@ -53,6 +53,15 @@ const Table = ({
     } else if (c.type === "number") {
       colType = "number"
       filter = "exact"
+    } else if (c.type === "long_text") {
+      colType = "long_text"
+      filter = "fuzzy"
+    } else if (c.type === "checkbox") {
+      colType = "checkbox"
+      filter = "boolean"
+    } else if (c.type === "single_select") {
+      colType = "single_select"
+      filter = "includes"
     }
     return {
       Header: c.description,
@@ -65,6 +74,12 @@ const Table = ({
         if (cellVal.type === "number") {
           return cellVal.value.toFixed(2)
         } else if (cellVal.type === "string") {
+          return cellVal.value
+        } else if (cellVal.type === "long_text") {
+          return cellVal.value
+        } else if (cellVal.type === "checkbox") {
+          return cellVal.value
+        } else if (cellVal.type === "single_select") {
           return cellVal.value
         }
       },
@@ -248,7 +263,7 @@ const defaultColumn = {
     Filter: GlobalFilter,
     Cell: EditableCell,
     minWidth: 30,
-    width: 150,
+    width: 180,
     maxWidth: 400,
 }
 
