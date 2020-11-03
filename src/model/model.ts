@@ -69,6 +69,7 @@ export interface DobbyRepo {
     rowsForTable(baseId: BaseID, tableId: TableID): Promise<Row[] | null>,
     insertColumn(baseId: BaseID, tableId: TableID, index: (number | null)): Promise<Column>,
     updateColumn(baseId: BaseID, tableId: TableID, columnId: ColumnID, description: (string | null), type: ("string" | "number" | null)): Promise<void>,
+    deleteColumn(baseId: BaseID, tableId: TableID, rowId: ColumnID): Promise<void>,
     insertRow(baseId: BaseID, tableId: TableID, index: (number | null), values: Map<ColumnID, CellValue>): Promise<Row>,
     updateRow(baseId: BaseID, tableId: TableID, rowId: RowID, newValues: Map<ColumnID, CellValue>): Promise<void>,
     deleteRow(baseId: BaseID, tableId: TableID, rowId: RowID): Promise<void>,

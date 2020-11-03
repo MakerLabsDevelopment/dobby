@@ -15,7 +15,7 @@ import {
 } from '../state'
 
 import styles from './BasePage.module.css'
-import { newBaseId, newTableId, ColumnID, CellValue } from '../model/model'
+import { newBaseId, newTableId, ColumnID, CellValue, RowID } from '../model/model'
 
 interface IBasePage {
   routeParams: any
@@ -72,12 +72,20 @@ const CurrentTable = () => {
       await repo.insertRow(theActiveBase.id, activeTableVal.id, index, values)
   }
 
+  const updateRow = async (rowId: RowID, newValues: Map<ColumnID, CellValue>): Promise<void> => {
+      await repo.updateRow(theActiveBase.id, activeTableVal.id, rowId, newValues)
+  }
+
   const insertColumn = async (index: (number | null)): Promise<void> => {
       await repo.insertColumn(theActiveBase.id, activeTableVal.id, index)
   }
 
-  const updateColumn = async (columnId: ColumnID, description: string): Promise<void> => {
-      await repo.updateColumn(theActiveBase.id, activeTableVal.id, columnId, description, null)
+  const updateColumn = async (columnId: ColumnID, description: string, type: any): Promise<void> => {
+      await repo.updateColumn(theActiveBase.id, activeTableVal.id, columnId, description, type)
+  }
+
+  const deleteColumn = async (columnId: ColumnID): Promise<void> => {
+      await repo.deleteColumn(theActiveBase.id, activeTableVal.id, columnId)
   }
 
   return (
@@ -85,8 +93,10 @@ const CurrentTable = () => {
       table={activeTableVal}
       tableRows={activeTableRowsVal}
       insertRow={insertRow}
+      updateRow={updateRow}
       insertColumn={insertColumn}
       updateColumn={updateColumn}
+      deleteColumn={deleteColumn}
     />
   )
 }

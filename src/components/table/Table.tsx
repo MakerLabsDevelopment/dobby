@@ -28,16 +28,20 @@ interface TableProps {
   table: ModelTable,
   tableRows: Row[],
   insertRow: (index: number, values: Map<ColumnID, CellValue>) => Promise<void>,
+  updateRow: (rowId: RowID, newValues: Map<ColumnID, CellValue>) => Promise<void>,
   insertColumn: (index: (number | null)) => Promise<void>,
-  updateColumn: (columnId: ColumnID, description: string) => Promise<void>
+  updateColumn: (columnId: ColumnID, description: string, type: any) => Promise<void>
+  deleteColumn: (columnId: ColumnID) => Promise<void>
 }
 
 const Table = ({
   table,
   tableRows,
   insertRow,
+  updateRow,
   insertColumn,
-  updateColumn
+  updateColumn,
+  deleteColumn
 }: TableProps) => {
   const columns: Array<ReactTableColumn> = table.columns.map(c => {
     let colType = null
@@ -69,9 +73,6 @@ const Table = ({
     }
   })
 
-  const setColumns = () => console.log("setting columns")
-
-
   const filterTypes: FilterTypes<Row> = useMemo(() => {
     const fuzzyTextFilterFn: FilterType<Row> = (rows: Array<ReactTableRow<Row>>, columnIds: Array<ColumnID>, filterValue: string): Array<ReactTableRow<Row>> => {
         return matchSorter(rows, filterValue, { keys: [row => columnIds.map(c => row[c])]})
@@ -101,13 +102,35 @@ const Table = ({
       return
   }
 
+  const updateMyData = async (index: number, columnId: string, value: any): Promise<void> => {
+      const rowId = tableRows[index].id
+      const column = table.columns.find((col: any) => col.id.value === columnId)
+      const values: Map<ColumnID, CellValue> = new Map()
+      values.set(column.id, { type: column.type, value: value })
+      await updateRow(rowId, values)
+      return
+  }
+
   const addColumn = async (index: (number | null)): Promise<void> => {
       await insertColumn(index)
       return
   }
 
-  const renameColumn = async (columnId: ColumnID, description: string): Promise<void> => {
-    await updateColumn(columnId, description)
+  const renameColumn = async (columnId: string, description: string): Promise<void> => {
+    const column = table.columns.find((col: any) => col.id.value === columnId)
+    await updateColumn(column.id, description)
+    return
+  }
+
+  const changeColumnType = async (columnId: string, type: string): Promise<void> => {
+    const column = table.columns.find((col: any) => col.id.value === columnId)
+    await updateColumn(column.id, null, type)
+    return
+  }
+
+  const removeColumn = async (columnId: string): Promise<void> => {
+    const column = table.columns.find((col: any) => col.id.value === columnId)
+    await deleteColumn(column.id)
     return
   }
 
@@ -141,6 +164,7 @@ const Table = ({
       initialState: { pageSize: 30 },
       disableMultiSort: true,
       autoResetHiddenColumns: false,
+      updateMyData
     },
     useFilters,
     useGlobalFilter,
@@ -194,7 +218,8 @@ const Table = ({
           name={table.name}
           addColumn={addColumn}
           renameColumn={renameColumn}
-          setColumns={setColumns}
+          changeColumnType={changeColumnType}
+          removeColumn={removeColumn}
         />
         <TableBody
           getTableBodyProps={getTableBodyProps}

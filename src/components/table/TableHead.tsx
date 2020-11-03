@@ -3,13 +3,14 @@ import ColumnOptionsMenu from './ColumnOptionsMenu'
 import styles from './TableHead.module.css'
 
 interface TableHeadProps {
+  changeColumnType: (columnId: any, type: string) => any
   headerGroups: []
-  setColumns: (old: any) => any
   addColumn: (index?: number) => any
   renameColumn: (columnId: any, description: string) => any
+  removeColumn: (columnId: any) => any
 }
 
-const TableHead = ({ headerGroups, addColumn, renameColumn, setColumns }: TableHeadProps) => {
+const TableHead = ({ changeColumnType, headerGroups, addColumn, removeColumn, renameColumn }: TableHeadProps) => {
   const [columnId, setColumnId] = useState('')
   const [showColumnOptionsMenu, setShowColumnOptionsMenu] = useState(false)
 
@@ -48,12 +49,13 @@ const TableHead = ({ headerGroups, addColumn, renameColumn, setColumns }: TableH
                 {showColumnOptionsMenu && column.id === columnId && (
                   <ColumnOptionsMenu
                     addColumn={addColumn}
+                    changeColumnType={changeColumnType}
                     columnId={columnId}
                     column={column}
                     headers={headerGroup.headers}
                     onClose={() => setShowColumnOptionsMenu(false)}
                     renameColumn={renameColumn}
-                    setColumns={setColumns}
+                    removeColumn={removeColumn}
                   />
                 )}
               </div>

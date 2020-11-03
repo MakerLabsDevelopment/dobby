@@ -143,7 +143,28 @@ export class DummyRepo implements DobbyRepo {
         if (base == null) {
             throw new Error("No such base " + baseId)
         }
-
+        const table = base.tables.find(t => equalIds(t.id, tableId))
+        if (table == null) {
+            throw new Error("No such table " + tableId)
+        }
+        const column = table.columns.find(c => equalIds(c.id, columnId))
+        if (column == null) {
+            throw new Error("No such column " + columnId)
+        }
+        if (description !== null) {
+            column.description = description
+        }
+        if (type !== null) {
+            column.type = type
+        }
+        this.notifyListeners()
+        return
+    }
+    public async deleteColumn(baseId: BaseID, tableId: TableID, columnId: ColumnID): Promise<void> {
+        const base = this.bases.get(baseId)
+        if (base == null) {
+            throw new Error("No such base " + baseId)
+        }
         const table = base.tables.find(t => equalIds(t.id, tableId))
         if (table == null) {
             throw new Error("No such table " + tableId)
@@ -151,41 +172,13 @@ export class DummyRepo implements DobbyRepo {
 
         const column = table.columns.find(c => equalIds(c.id, columnId))
         if (column == null) {
-            throw new Error("No such column " + columnId)
+            throw new Error("No such row " + columnId)
         }
-
-        // const newColumnIds: Set<string> = new Set()
-        // for (const [columnId, value] of newValues) {
-        //   column.cellValues[columnId.value] = value
-        //   newColumnIds.add(columnId.value)
-        // }
-        // for (const rawColumnId in row.cellValues.keys()) {
-        //   if (!newColumnIds.has(rawColumnId)) {
-        //     row.cellValues.delete(rawColumnId)
-        //   }
-        // }
+        const indexToRemove = table.columns.indexOf(column)
+        table.columns.splice(indexToRemove, 1)
         this.notifyListeners()
         return
     }
-    // public async deleteRow(baseId: BaseID, tableId: TableID, rowId: RowID): Promise<void> {
-    //     const base = this.bases.get(baseId)
-    //     if (base == null) {
-    //         throw new Error("No such base " + baseId)
-    //     }
-    //     const table = base.tables.find(t => equalIds(t.id, tableId))
-    //     if (table == null) {
-    //         throw new Error("No such table " + tableId)
-    //     }
-    //
-    //     const row = table.rows.find(r => equalIds(r.id, rowId))
-    //     if (row == null) {
-    //         throw new Error("No such row " + rowId)
-    //     }
-    //     const indexToRemove = table.rows.indexOf(row)
-    //     table.rows.splice(indexToRemove, 1)
-    //     this.notifyListeners()
-    //     return
-    // }
     public async insertRow(baseId: BaseID, tableId: TableID, index: (number | null), values: Map<ColumnID, CellValue>): Promise<Row> {
         const base = this.bases.get(baseId)
         if (base == null) {

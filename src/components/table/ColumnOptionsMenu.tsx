@@ -34,22 +34,24 @@ const menuTypes = [
 
 type ColumnOptionsMenuProps = {
   addColumn: (index?: number) => any
-  column: any,
-  columnId: any,
-  headers: [],
-  onClose: () => any,
+  changeColumnType: (columnId: any, type: string) => any
+  column: any
+  columnId: any
+  headers: []
+  onClose: () => any
   renameColumn: (columnId: any, description: string) => any
-  setColumns: (old: object) => any,
+  removeColumn: (columnId: any) => any
 }
 
 const ColumnOptionsMenu = ({
   addColumn,
+  changeColumnType,
   column,
   columnId,
   headers,
   onClose,
   renameColumn,
-  setColumns,
+  removeColumn,
 }: ColumnOptionsMenuProps) => {
   const [dropDown, setDropDown] = useState('options')
   const [colName, setColName] = useState('')
@@ -70,30 +72,6 @@ const ColumnOptionsMenu = ({
   }
   const wrapperRef = useRef(null)
   useOutsideAlerter(wrapperRef)
-
-  const changeColumnType = async (columnId: string, type: string) => {
-    setColumns(old =>
-      old.map((row) => {
-        for (var i in row.columns) {
-          if (row.columns[i].accessor === columnId) {
-            row.columns[i].type = type
-            break
-          }
-        }
-        return row
-      })
-    )
-  }
-
-  const removeColumn = (columnId: string) => {
-    setColumns(old =>
-      old.map((row) => {
-        return {
-          columns: row.columns.filter((col) => col.accessor !== columnId)
-        }
-      })
-    )
-  }
 
   const sortColumn = (direction: ('asc' | 'desc')) => {
     //TODO: insert desction check and sort accordingly
