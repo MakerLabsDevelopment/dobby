@@ -65,7 +65,7 @@ export type CheckboxCellValue = {
 
 export type SingleSelectCellValue = {
     type: "single_select",
-    value: any[],
+    value: any,
 }
 
 export interface Row {

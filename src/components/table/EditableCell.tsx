@@ -22,7 +22,7 @@ const EditableCell = ({
     setValue(e.target.value)
   }
 
-  const onBlur = () => {
+  const onSave = () => {
     updateMyData(index, id, value)
   }
 
@@ -33,7 +33,7 @@ const EditableCell = ({
         type='text'
         value={value}
         onChange={onChange}
-        onBlur={onBlur}
+        onBlur={onSave}
       />
     )
   }
@@ -43,7 +43,7 @@ const EditableCell = ({
       <TextAreaCell
         value={value}
         onChange={onChange}
-        onBlur={onBlur}
+        onBlur={onSave}
       />
     )
   }
@@ -65,7 +65,7 @@ const EditableCell = ({
         type='checkbox'
         value={value}
         onChange={onChange}
-        onBlur={onBlur}
+        onBlur={onSave}
       />
     )
   }
@@ -82,28 +82,29 @@ const EditableCell = ({
   }
 
   if (type === 'single_select') {
-    console.log(value, 'VALUE')
     return (
       <SingleSelectCell
         value={value}
+        setValue={setValue}
+        onSave={onSave}
       />
     )
   }
 
   if (type === 'collaborator') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
   if (type === 'date') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
   if (type === 'email') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
   if (type === 'url') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
   if (type === 'number') {
@@ -113,73 +114,73 @@ const EditableCell = ({
         type={type}
         value={value}
         onChange={onChange}
-        onBlur={onBlur}
+        onBlur={onSave}
       />
     )
   }
 
   if (type === 'currency') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
   if (type === 'percentage') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
   if (type === 'duration') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
   if (type === 'rating') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
   if (type === 'formula') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
   if (type === 'rollup') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
   if (type === 'count') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
   if (type === 'lookup') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
   if (type === 'created_time') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
   if (type === 'last_modified_time') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
   if (type === 'created_by') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
   if (type === 'last_modified_by') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
   if (type === 'autonumber') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
   if (type === 'barcode') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
   if (type === 'button') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
   if (type === 'link_to_another_record') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onBlur} />)
+    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 }
 

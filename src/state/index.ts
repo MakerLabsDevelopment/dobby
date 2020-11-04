@@ -86,20 +86,20 @@ const repo = dummy.newDummyRepo([
                     "col2": {type: "number", value: 10},
                     "col3": {type: "long_text", value: "we need more"},
                     "col4": {type: "checkbox", value: true},
-                    "col5": {type: "single_select", value: [
-                      { label: "bulldog", selected: true },
-                      { label: "poodle", selected: false }
-                    ]},
+                    "col5": {type: "single_select", value: {
+                      options: ["bulldog", "poodle"],
+                      selectedIndex: 0
+                    }},
                   },
                   {
                     "col1": {type: "string", value: "row2id"},
                     "col2": {type: "number", value: 20},
                     "col3": {type: "long_text", value: "we need less"},
                     "col4": {type: "checkbox", value: false},
-                    "col5": {type: "single_select", value: [
-                      { label: "bulldog", selected: false },
-                      { label: "poodle", selected: true }
-                    ]},
+                    "col5": {type: "single_select", value: {
+                      options: ["bulldog", "poodle"],
+                      selectedIndex: 1
+                    }},
                   }
                 ],
             }

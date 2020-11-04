@@ -100,6 +100,7 @@ const Table = ({
 
   const addEmptyRow = async (index: number): Promise<void> => {
       const values: Map<ColumnID, CellValue> = new Map()
+      // TODO: add column types
       for (const column of table.columns) {
           if (column.type === "string") {
               values.set(column.id, {
