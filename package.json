@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@metamask/detect-provider": "^1.2.0",
+    "@metamask/onboarding": "^1.0.0",
     "@textile/hub": "0.7.1",
     "@types/color-hash": "^1.0.0",
     "@types/jdenticon": "^2.2.0",
