@@ -1,34 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
+import { useOutsideAlerter } from '../../../hooks'
 import styles from './TextAreaCell.module.css'
 
 const TextAreaCell = ({ value, onChange, onBlur }) => {
-  const [edit, setEdit] = useState(false)
-
-  const useOutsideAlerter = (ref: any) => {
-    useEffect(() => {
-      function handleClickOutside(event: any) {
-        if (ref.current && !ref.current.contains(event.target)) {
-          setEdit(false)
-        }
-      }
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }, [ref])
-  }
   const wrapperRef = useRef(null)
-  useOutsideAlerter(wrapperRef)
+  const [edit, setEdit]: any = useOutsideAlerter(wrapperRef)
 
   return (
-    <div onDoubleClick={() => setEdit(true)}>
+    <div onDoubleClick={() => setEdit('selected')}>
       {!edit && (
         <input
+          className={styles.input}
           value={value}
           onChange={onChange}
         />
       )}
-      {edit && (
+      {edit === 'selected' && (
         <textarea
           className={styles.textarea}
           ref={wrapperRef}

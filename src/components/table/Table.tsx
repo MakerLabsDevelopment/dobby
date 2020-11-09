@@ -62,6 +62,30 @@ const Table = ({
     } else if (c.type === "single_select") {
       colType = "single_select"
       filter = "includes"
+    } else if (c.type === "multi_select") {
+      colType = "multi_select"
+      filter = "includes"
+    } else if (c.type === "email") {
+      colType = "email"
+      filter = "fuzzy"
+    } else if (c.type === "url") {
+      colType = "url"
+      filter = "fuzzy"
+    } else if (c.type === "phone_number") {
+      colType = "phone_number"
+      filter = "exact"
+    } else if (c.type === "percentage") {
+      colType = "percentage"
+      filter = "exact"
+    } else if (c.type === "currency") {
+      colType = "currency"
+      filter = "exact"
+    } else if (c.type === "attachment") {
+      colType = "attachment"
+      filter = "exact"
+    } else if (c.type === "date") {
+      colType = "date"
+      filter = "exact"
     }
     return {
       Header: c.description,
@@ -73,13 +97,7 @@ const Table = ({
         }
         if (cellVal.type === "number") {
           return cellVal.value.toFixed(2)
-        } else if (cellVal.type === "string") {
-          return cellVal.value
-        } else if (cellVal.type === "long_text") {
-          return cellVal.value
-        } else if (cellVal.type === "checkbox") {
-          return cellVal.value
-        } else if (cellVal.type === "single_select") {
+        } else {
           return cellVal.value
         }
       },
@@ -102,15 +120,60 @@ const Table = ({
       const values: Map<ColumnID, CellValue> = new Map()
       // TODO: add column types
       for (const column of table.columns) {
-          if (column.type === "string") {
+          if (["string", "email", "url"].includes(column.type)) {
               values.set(column.id, {
-                  type: "string",
+                  type: column.type,
                   value: "",
               })
-          } else {
+          } else if (column.type === "number") {
               values.set(column.id, {
                   type: "number",
                   value: 0,
+              })
+          } else if (column.type === "long_text") {
+              values.set(column.id, {
+                  type: "long_text",
+                  value: "",
+              })
+          } else if (column.type === "checkbox") {
+              values.set(column.id, {
+                  type: "checkbox",
+                  value: false,
+              })
+          } else if (column.type === "single_select") {
+              values.set(column.id, {
+                  type: "single_select",
+                  value: { options: [], selectedIndex: 0 },
+              })
+          } else if (column.type === "multi_select") {
+              values.set(column.id, {
+                  type: "multi_select",
+                  value: [{ label: "", selected: false }],
+              })
+          } else if (column.type === "phone_number") {
+              values.set(column.id, {
+                  type: "phone_number",
+                  value: "",
+              })
+          } else if (column.type === "percentage") {
+              values.set(column.id, {
+                  type: "percentage",
+                  value: "",
+              })
+          } else if (column.type === "currency") {
+              values.set(column.id, {
+                  type: "currency",
+                  value: "",
+              })
+          } else if (column.type === "attachment") {
+              values.set(column.id, {
+                  type: "attachment",
+                  value: [],
+              })
+          } else if (column.type === "date") {
+              values.set(column.id, {
+                  type: "date",
+                  value: "",
               })
           }
       }

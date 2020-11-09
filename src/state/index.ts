@@ -77,6 +77,46 @@ const repo = dummy.newDummyRepo([
                         id: newColumnId("col5"),
                         description: "Breed",
                         type: 'single_select',
+                    },
+                    {
+                        id: newColumnId("col6"),
+                        description: "Colours",
+                        type: 'multi_select',
+                    },
+                    {
+                        id: newColumnId("col7"),
+                        description: "email",
+                        type: 'email',
+                    },
+                    {
+                        id: newColumnId("col8"),
+                        description: "website",
+                        type: 'url',
+                    },
+                    {
+                        id: newColumnId("col9"),
+                        description: "Phone Number",
+                        type: 'phone_number',
+                    },
+                    {
+                        id: newColumnId("col10"),
+                        description: "Margin",
+                        type: 'percentage',
+                    },
+                    {
+                        id: newColumnId("col11"),
+                        description: "Revenue",
+                        type: 'currency',
+                    },
+                    {
+                        id: newColumnId("col12"),
+                        description: "Images",
+                        type: 'attachment',
+                    },
+                    {
+                        id: newColumnId("col13"),
+                        description: "Due",
+                        type: 'date',
                     }
                 ],
                 name: "table1",
@@ -90,6 +130,17 @@ const repo = dummy.newDummyRepo([
                       options: ["bulldog", "poodle"],
                       selectedIndex: 0
                     }},
+                    "col6": {type: "multi_select", value: [
+                      { label: "blue", selected: true },
+                      { label: "green", selected: false }
+                    ]},
+                    "col7": {type: "email", value: "nassar@makerlabs.co.uk"},
+                    "col8": {type: "url", value: "www.makerlabs.co.uk"},
+                    "col9": {type: "phone_number", value: "07412628424"},
+                    "col10": {type: "percentage", value: ""},
+                    "col11": {type: "currency", value: ""},
+                    "col12": {type: "attachment", value: []},
+                    "col13": {type: "date", value: ""},
                   },
                   {
                     "col1": {type: "string", value: "row2id"},
@@ -100,6 +151,17 @@ const repo = dummy.newDummyRepo([
                       options: ["bulldog", "poodle"],
                       selectedIndex: 1
                     }},
+                    "col6": {type: "multi_select", value: [
+                      { label: "blue", selected: false },
+                      { label: "green", selected: false }
+                    ]},
+                    "col7": {type: "email", value: ""},
+                    "col8": {type: "url", value: ""},
+                    "col9": {type: "phone_number", value: ""},
+                    "col10": {type: "percentage", value: ""},
+                    "col11": {type: "currency", value: ""},
+                    "col12": {type: "attachment", value: []},
+                    "col13": {type: "date", value: ""},
                   }
                 ],
             }

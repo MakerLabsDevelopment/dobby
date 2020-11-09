@@ -1,6 +1,10 @@
 import React, { useState } from 'react'
 import TextAreaCell from './cells/TextAreaCell'
 import SingleSelectCell from './cells/SingleSelectCell'
+import MultiSelectCell from './cells/MultiSelectCell'
+import EmailCell from './cells/EmailCell'
+import UrlCell from './cells/UrlCell'
+import PhoneNumberCell from './cells/PhoneNumberCell'
 import styles from './EditableCell.module.css'
 
 interface EditableCellProps {
@@ -48,17 +52,6 @@ const EditableCell = ({
     )
   }
 
-  if (type === 'attachments') {
-    return (
-      <div>
-        {value.map((file: any) => (
-          <div>{file.name}</div>
-        ))}
-        <div onClick={() => console.log('save file in bucket + store link to it')}>add</div>
-      </div>
-    )
-  }
-
   if (type === 'checkbox') {
     return (
       <input
@@ -70,14 +63,13 @@ const EditableCell = ({
     )
   }
 
-  if (type === 'multiselect') {
+  if (type === 'multi_select') {
     return (
-      <select value={value} onChange={onChange}>
-        <option value="grapefruit">Grapefruit</option>
-        <option value="lime">Lime</option>
-        <option value="coconut">Coconut</option>
-        <option value="mango">Mango</option>
-      </select>
+      <MultiSelectCell
+        value={value}
+        setValue={setValue}
+        onSave={onSave}
+      />
     )
   }
 
@@ -91,20 +83,47 @@ const EditableCell = ({
     )
   }
 
-  if (type === 'collaborator') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
+  if (type === 'attachment') {
+    return (
+      <div>
+        {value.map((file: any) => (
+          <div>{file.name}</div>
+        ))}
+        <div onClick={() => console.log('save file in bucket + store link to it')}>add</div>
+      </div>
+    )
   }
 
   if (type === 'date') {
     return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
-  if (type === 'email') {
+  if (type === 'currency') {
     return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 
-  if (type === 'url') {
+  if (type === 'percentage') {
     return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
+  }
+
+  if (type === 'email') {
+    return (
+      <EmailCell
+        value={value}
+        onChange={onChange}
+        onSave={onSave}
+      />
+    )
+  }
+
+  if (type === 'url') {
+    return (
+      <UrlCell
+        value={value}
+        onChange={onChange}
+        onSave={onSave}
+      />
+    )
   }
 
   if (type === 'number') {
@@ -119,11 +138,17 @@ const EditableCell = ({
     )
   }
 
-  if (type === 'currency') {
-    return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
+  if (type === 'phone_number') {
+    return (
+      <PhoneNumberCell
+        value={value}
+        onChange={onChange}
+        onSave={onSave}
+      />
+    )
   }
 
-  if (type === 'percentage') {
+  if (type === 'collaborator') {
     return (<input type={type} value={value} onChange={onChange} onBlur={onSave} />)
   }
 

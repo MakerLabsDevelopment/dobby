@@ -1,0 +1,24 @@
+
+.container {
+  display: flex;
+  flex-direction: row;
+}
+
+.label {
+  padding: 1px 8px;
+  border-radius: 20px;
+  margin: 5px auto 5px 5px;
+}
+
+.dropdownContainer {
+  position: absolute;
+  border-radius: 5px;
+  border: solid 1px hsl(202,10%,88%);
+  min-width: 100px;
+  background-color: white;
+}
+
+.arrow {
+  margin-top: 15px;
+  margin-right: 10px;
+}

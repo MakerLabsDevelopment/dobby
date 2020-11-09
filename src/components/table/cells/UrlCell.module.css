@@ -1,0 +1,13 @@
+
+
+.container {
+  display: flex;
+}
+
+.inactive {
+  text-decoration: underline;
+}
+
+.input {
+  padding: 7px;
+}

@@ -1,0 +1,17 @@
+
+
+.container {
+  display: flex;
+}
+
+.email {
+  padding: 7px;
+}
+
+.inactive {
+  text-decoration: underline;
+}
+
+.input {
+  padding: 7px;
+}

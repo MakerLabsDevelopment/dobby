@@ -2,16 +2,16 @@ import React, { useRef, useState } from 'react'
 import { useOutsideAlerter } from '../../../hooks'
 import ColourHash from 'color-hash'
 import Icon from '../../ui/Icon'
-import styles from './SingleSelectCell.module.css'
+import styles from './MultiSelectCell.module.css'
 
-const SingleSelectCell = ({ value, setValue, onSave }) => {
+const MultiSelectCell = ({ value, setValue, onSave }) => {
   const wrapperRef = useRef(null)
   const [edit, setEdit]: any = useOutsideAlerter(wrapperRef)
   const [searchValue, setSearchValue] = useState<string>('')
 
   const colourHash = new ColourHash({hue: {min: 90, max: 150}, lightness: 0.8})
 
-  const selected = value.options[value.selectedIndex]
+  const selected = value.filter((option: any) => option.selected === true)
 
   const selectCell = () => {
     if (!edit) {
@@ -27,20 +27,20 @@ const SingleSelectCell = ({ value, setValue, onSave }) => {
     setSearchValue(e.target.value)
   }
 
-  const filteredOptionsList = value.options.filter(
-    (option: any) => option.includes(searchValue)
+  const filteredOptionsList = value.filter(
+    (option: any) => option.label.includes(searchValue)
   )
 
-  const selectOption = (index: number) => {
-    value.selectedIndex = index
+  const selectOption = (label: string) => {
+    value.find((option: any) => option.label === label).selected = true
     setValue(value)
     onSave()
     setEdit(null)
   }
 
   const addOption = () => {
-    value.options.push(searchValue)
-    value.selectedIndex = value.options.length - 1
+    const newOption = { label: searchValue, selected: true }
+    value.push(newOption)
     setValue(value)
     onSave()
     setSearchValue('')
@@ -52,13 +52,16 @@ const SingleSelectCell = ({ value, setValue, onSave }) => {
         className={styles.container}
         onClick={selectCell}
       >
-        {selected && (<div
-          className={styles.label}
-          style={{ backgroundColor: colourHash.hex(selected) }}
-        >
-          {selected}
-        </div>)}
-        {!selected && (<div>add</div>)}
+        {selected.map((option: any, index: number) => (
+          <div
+            key={index}
+            className={styles.label}
+            style={{ backgroundColor: colourHash.hex(option.label) }}
+          >
+            {option.label}
+          </div>
+        ))}
+        {!selected.length && (<div>add</div>)}
         {edit && (<Icon icon="arrowDown" className={styles.arrow}/>)}
       </div>
       {edit === 'dropdown' && (
@@ -72,14 +75,14 @@ const SingleSelectCell = ({ value, setValue, onSave }) => {
             value={searchValue}
             onChange={onSearch}
           />
-          {filteredOptionsList.map((option: string, index: number) => (
+          {filteredOptionsList.map((option: any, index: number) => (
             <div
               key={index}
-              onClick={() => selectOption(index)}
+              onClick={() => selectOption(option.label)}
               className={styles.label}
-              style={{ backgroundColor: colourHash.hex(option) }}
+              style={{ backgroundColor: colourHash.hex(option.label) }}
             >
-              {option}
+              {option.label}
             </div>
           ))}
           {searchValue && (<div onClick={addOption}>+ add new option</div>)}
@@ -89,4 +92,4 @@ const SingleSelectCell = ({ value, setValue, onSave }) => {
   )
 }
 
-export default SingleSelectCell
+export default MultiSelectCell

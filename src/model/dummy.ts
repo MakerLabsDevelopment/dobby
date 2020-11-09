@@ -137,7 +137,11 @@ export class DummyRepo implements DobbyRepo {
       tableId: TableID,
       columnId: ColumnID,
       description: (string | null),
-      type: ("string" | "number" | "long_text" | "checkbox" | "single_select" | null)
+      type: (
+        "string" | "number" | "long_text" | "checkbox" | "single_select"
+        | "multi_select" | "email" | "url" | "phone_number" | "percentage" 
+        | "currency" | "attachment" | "date" | null
+      )
     ): Promise<void> {
         console.log('SSS', type)
         const base = this.bases.get(baseId)
